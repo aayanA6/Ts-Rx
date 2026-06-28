@@ -10,25 +10,60 @@ from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
+from analysis_agent.auth import (
+    create_access_token,
+    create_refresh_token,
+    decode_token,
+    generate_api_key,
+    hash_api_key,
+    hash_password,
+    verify_password,
+)
 from analysis_agent.config import get_settings
 from analysis_agent.database import SessionLocal, engine, get_db
-from analysis_agent.models import AnalysisJob, AnalysisReport, Base, JobStatus
+from analysis_agent.models import (
+    AnalysisJob,
+    AnalysisReport,
+    ApiKey,
+    Base,
+    JobStatus,
+    NotificationSettings,
+    ReportStatus,
+    User,
+)
 from analysis_agent.schemas import (
+    AnalysisJobCreate,
+    ApiKeyCreateRequest,
+    ApiKeyCreatedResponse,
+    ApiKeyResponse,
     IncidentView,
+    IngestPayload,
+    IngestResponse,
     JobCreatedResponse,
     JobStatusResponse,
+    LoginRequest,
+    NotificationSettingsRequest,
+    NotificationSettingsResponse,
     ProposedFixView,
+    RefreshRequest,
+    RegisterRequest,
+    ServiceSummary,
     SummaryResponse,
+    TokenResponse,
     UptimeKumaJobCreate,
+    UptimeStatus,
+    UserResponse,
 )
-from analysis_agent.worker import AnalysisWorker
+from analysis_agent.worker import AnalysisWorker, set_redis
 
 settings = get_settings()
 request_id_ctx: ContextVar[str] = ContextVar("request_id", default="-")
@@ -49,14 +84,17 @@ for handler in logging.getLogger().handlers:
     handler.addFilter(RequestIdFilter())
 
 logger = logging.getLogger(__name__)
-app = FastAPI(title="analysis-agent", version="0.1.0")
+app = FastAPI(title="ts-rx", version="1.0.0")
 worker_task: asyncio.Task | None = None
 worker: AnalysisWorker | None = None
+redis_client = None
+
+bearer_scheme = HTTPBearer(auto_error=False)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -81,8 +119,21 @@ async def validation_exception_handler(_: Request, exc: RequestValidationError):
 
 @app.on_event("startup")
 async def on_startup() -> None:
+    global redis_client
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    # Redis (optional — gracefully degrade if unavailable)
+    try:
+        import redis.asyncio as aioredis
+        redis_client = aioredis.from_url(settings.redis_url, decode_responses=True)
+        await redis_client.ping()
+        set_redis(redis_client)
+        logger.info("Redis connected")
+    except Exception as exc:
+        logger.warning("Redis unavailable — WebSocket events disabled: %s", exc)
+        redis_client = None
 
     global worker, worker_task
     if settings.worker_enabled:
@@ -93,7 +144,7 @@ async def on_startup() -> None:
 
 @app.on_event("shutdown")
 async def on_shutdown() -> None:
-    global worker_task, worker
+    global worker_task, worker, redis_client
     if worker is not None:
         await worker.stop()
     if worker_task is not None:
@@ -102,15 +153,306 @@ async def on_shutdown() -> None:
             await worker_task
         except asyncio.CancelledError:
             pass
+    if redis_client is not None:
+        await redis_client.aclose()
 
 
-@app.get("/health")
-async def health() -> dict[str, str]:
-    return {"status": "ok"}
+# ---------------------------------------------------------------------------
+# Auth helpers
+# ---------------------------------------------------------------------------
 
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    if credentials is None:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    user_id = decode_token(credentials.credentials, expected_type="access")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    result = await db.execute(select(User).where(User.id == UUID(user_id)))
+    user = result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
+
+
+async def get_user_by_api_key(api_key_header: str, db: AsyncSession) -> User:
+    key_hash = hash_api_key(api_key_header)
+    result = await db.execute(
+        select(ApiKey).options(selectinload(ApiKey.user)).where(ApiKey.key_hash == key_hash)
+    )
+    api_key = result.scalar_one_or_none()
+    if api_key is None:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    # Update last_used_at
+    api_key.last_used_at = datetime.now(tz=timezone.utc)
+    await db.commit()
+    return api_key.user
+
+
+# ---------------------------------------------------------------------------
+# Auth routes
+# ---------------------------------------------------------------------------
+
+@app.post("/auth/register", response_model=TokenResponse, status_code=201)
+async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)) -> TokenResponse:
+    existing = await db.execute(select(User).where(User.email == body.email))
+    if existing.scalar_one_or_none() is not None:
+        raise HTTPException(status_code=409, detail="Email already registered")
+
+    user = User(email=body.email, hashed_password=hash_password(body.password))
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+
+    return TokenResponse(
+        access_token=create_access_token(str(user.id)),
+        refresh_token=create_refresh_token(str(user.id)),
+    )
+
+
+@app.post("/auth/login", response_model=TokenResponse)
+async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)) -> TokenResponse:
+    result = await db.execute(select(User).where(User.email == body.email))
+    user = result.scalar_one_or_none()
+    if user is None or not verify_password(body.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    return TokenResponse(
+        access_token=create_access_token(str(user.id)),
+        refresh_token=create_refresh_token(str(user.id)),
+    )
+
+
+@app.post("/auth/refresh", response_model=TokenResponse)
+async def refresh_token(body: RefreshRequest, db: AsyncSession = Depends(get_db)) -> TokenResponse:
+    user_id = decode_token(body.refresh_token, expected_type="refresh")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+    result = await db.execute(select(User).where(User.id == UUID(user_id)))
+    user = result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    return TokenResponse(
+        access_token=create_access_token(str(user.id)),
+        refresh_token=create_refresh_token(str(user.id)),
+    )
+
+
+@app.get("/auth/me", response_model=UserResponse)
+async def me(current_user: User = Depends(get_current_user)) -> UserResponse:
+    return UserResponse(id=current_user.id, email=current_user.email, created_at=current_user.created_at)
+
+
+# ---------------------------------------------------------------------------
+# API Keys
+# ---------------------------------------------------------------------------
+
+@app.get("/api/v1/keys", response_model=list[ApiKeyResponse])
+async def list_api_keys(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(ApiKey).where(ApiKey.user_id == current_user.id).order_by(ApiKey.created_at))
+    keys = result.scalars().all()
+    return [ApiKeyResponse(id=k.id, label=k.label, created_at=k.created_at, last_used_at=k.last_used_at) for k in keys]
+
+
+@app.post("/api/v1/keys", response_model=ApiKeyCreatedResponse, status_code=201)
+async def create_api_key(
+    body: ApiKeyCreateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ApiKeyCreatedResponse:
+    plaintext, hashed = generate_api_key()
+    key = ApiKey(user_id=current_user.id, key_hash=hashed, label=body.label)
+    db.add(key)
+    await db.commit()
+    await db.refresh(key)
+    return ApiKeyCreatedResponse(id=key.id, label=key.label, key=plaintext, created_at=key.created_at)
+
+
+@app.delete("/api/v1/keys/{key_id}", status_code=204)
+async def delete_api_key(
+    key_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    result = await db.execute(select(ApiKey).where(ApiKey.id == key_id, ApiKey.user_id == current_user.id))
+    key = result.scalar_one_or_none()
+    if key is None:
+        raise HTTPException(status_code=404, detail="API key not found")
+    await db.delete(key)
+    await db.commit()
+
+
+# ---------------------------------------------------------------------------
+# Notification settings
+# ---------------------------------------------------------------------------
+
+@app.get("/api/v1/notifications", response_model=NotificationSettingsResponse)
+async def get_notifications(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(NotificationSettings).where(NotificationSettings.user_id == current_user.id))
+    notif = result.scalar_one_or_none()
+    if notif is None:
+        return NotificationSettingsResponse(
+            email_enabled=False, discord_enabled=False, discord_webhook_url=None,
+            slack_enabled=False, slack_webhook_url=None,
+        )
+    return NotificationSettingsResponse(
+        email_enabled=notif.email_enabled,
+        discord_enabled=notif.discord_enabled,
+        discord_webhook_url=notif.discord_webhook_url,
+        slack_enabled=notif.slack_enabled,
+        slack_webhook_url=notif.slack_webhook_url,
+    )
+
+
+@app.put("/api/v1/notifications", response_model=NotificationSettingsResponse)
+async def update_notifications(
+    body: NotificationSettingsRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> NotificationSettingsResponse:
+    result = await db.execute(select(NotificationSettings).where(NotificationSettings.user_id == current_user.id))
+    notif = result.scalar_one_or_none()
+    if notif is None:
+        notif = NotificationSettings(user_id=current_user.id)
+        db.add(notif)
+
+    notif.email_enabled = body.email_enabled
+    notif.discord_enabled = body.discord_enabled
+    notif.discord_webhook_url = body.discord_webhook_url
+    notif.slack_enabled = body.slack_enabled
+    notif.slack_webhook_url = body.slack_webhook_url
+    await db.commit()
+
+    return NotificationSettingsResponse(
+        email_enabled=notif.email_enabled,
+        discord_enabled=notif.discord_enabled,
+        discord_webhook_url=notif.discord_webhook_url,
+        slack_enabled=notif.slack_enabled,
+        slack_webhook_url=notif.slack_webhook_url,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Webhook ingest (no JWT — API key in header or path)
+# ---------------------------------------------------------------------------
+
+def _normalize_ingest(raw: dict) -> IngestPayload:
+    """Accept both our flat format and Uptime Kuma's nested heartbeat/monitor format."""
+    if "heartbeat" in raw:
+        hb = raw["heartbeat"]
+        mon = raw.get("monitor", {})
+        monitor_name = hb.get("monitorName") or (mon.get("name") if isinstance(mon, dict) else None) or "unknown"
+        status_str = hb.get("status", "")
+        # Uptime Kuma uses 0/1 integers or "up"/"down" strings
+        if isinstance(status_str, int):
+            status_str = "UP" if status_str == 1 else "DOWN"
+        msg = hb.get("msg", "")
+        url = (mon.get("url", "") if isinstance(mon, dict) else "") or ""
+        ts = hb.get("time") or datetime.now(tz=timezone.utc).isoformat()
+        return IngestPayload(
+            monitor=monitor_name,
+            status=status_str,
+            msg=msg,
+            url=url,
+            time=ts,
+        )
+    return IngestPayload.model_validate(raw)
+
+
+@app.post("/api/v1/ingest/{api_key}", response_model=IngestResponse)
+async def ingest_webhook(
+    api_key: str,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> IngestResponse:
+    try:
+        raw = await request.json()
+        payload = _normalize_ingest(raw)
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"Malformed payload: {exc}") from exc
+    user = await get_user_by_api_key(api_key, db)
+    status_norm = payload.status.strip().upper()
+
+    if status_norm == "UP":
+        # Resolve open incidents for this monitor
+        result = await db.execute(
+            select(AnalysisJob).where(
+                AnalysisJob.user_id == user.id,
+                AnalysisJob.resolved == False,  # noqa: E712
+                AnalysisJob.request_payload["service_name"].astext == payload.monitor,
+            ).order_by(AnalysisJob.created_at.desc()).limit(10)
+        )
+        jobs = result.scalars().all()
+        for job in jobs:
+            job.resolved = True
+            job.resolved_at = datetime.now(tz=timezone.utc)
+        await db.commit()
+
+        if redis_client and jobs:
+            for job in jobs:
+                await redis_client.publish(
+                    f"user:{user.id}:events",
+                    json.dumps({"type": "incident_resolved", "incident_id": job.incident_id, "job_id": str(job.id)}),
+                )
+
+        return IngestResponse(action="resolved", message=f"Resolved {len(jobs)} incident(s) for {payload.monitor}")
+
+    if status_norm not in {"DOWN", "DEGRADED"}:
+        return IngestResponse(action="ignored", message=f"Status {payload.status!r} ignored")
+
+    # Create analysis job
+    import hashlib as _hashlib
+    from urllib.parse import urlparse
+    node = payload.metadata.get("device_or_node") or payload.metadata.get("node") or urlparse(payload.url).hostname or "unknown"
+    base = f"{payload.monitor}|{payload.time.isoformat()}|{status_norm}"
+    digest = _hashlib.sha1(base.encode()).hexdigest()[:12]
+    slug = "".join(ch if ch.isalnum() else "-" for ch in payload.monitor.lower()).strip("-")[:40] or "monitor"
+    incident_id = f"inc-{slug}-{digest}"
+    idempotency_key = f"{user.id}:{incident_id}"
+
+    existing = await db.execute(select(AnalysisJob).where(AnalysisJob.idempotency_key == idempotency_key))
+    existing_job = existing.scalar_one_or_none()
+    if existing_job:
+        return IngestResponse(action="queued", job_id=existing_job.id, message="Duplicate — existing job returned")
+
+    internal = AnalysisJobCreate(
+        incident_id=incident_id,
+        service_name=payload.monitor,
+        device_or_node=str(node),
+        uptime_status=UptimeStatus(status_norm.lower()),
+        uptime_description=payload.msg or f"{payload.monitor} is {status_norm}",
+        detected_at=payload.time,
+        log_snippets=payload.log_snippets,
+        metadata=payload.metadata,
+        idempotency_key=idempotency_key,
+    )
+
+    job = AnalysisJob(
+        user_id=user.id,
+        incident_id=incident_id,
+        idempotency_key=idempotency_key,
+        status=JobStatus.queued.value,
+        progress=0,
+        request_payload=internal.model_dump(mode="json"),
+    )
+    db.add(job)
+    await db.commit()
+    await db.refresh(job)
+    return IngestResponse(action="queued", job_id=job.id, message="Analysis job created")
+
+
+# ---------------------------------------------------------------------------
+# Analysis routes (authenticated)
+# ---------------------------------------------------------------------------
 
 @app.post("/api/v1/analysis/jobs", response_model=JobCreatedResponse)
-async def create_job(payload: UptimeKumaJobCreate, db: AsyncSession = Depends(get_db)) -> JobCreatedResponse:
+async def create_job(
+    payload: UptimeKumaJobCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> JobCreatedResponse:
     normalized = payload.to_internal()
     if normalized.idempotency_key:
         existing = await db.execute(select(AnalysisJob).where(AnalysisJob.idempotency_key == normalized.idempotency_key))
@@ -119,9 +461,10 @@ async def create_job(payload: UptimeKumaJobCreate, db: AsyncSession = Depends(ge
             return JobCreatedResponse(job_id=existing_job.id, status=existing_job.status.value)
 
     job = AnalysisJob(
+        user_id=current_user.id,
         incident_id=normalized.incident_id,
         idempotency_key=normalized.idempotency_key,
-        status=JobStatus.queued,
+        status=JobStatus.queued.value,
         progress=0,
         request_payload=normalized.model_dump(mode="json"),
     )
@@ -132,14 +475,23 @@ async def create_job(payload: UptimeKumaJobCreate, db: AsyncSession = Depends(ge
 
 
 @app.get("/api/v1/analysis/incidents", response_model=list[IncidentView])
-async def list_incidents(limit: int = 50, db: AsyncSession = Depends(get_db)) -> list[IncidentView]:
+async def list_incidents(
+    limit: int = 50,
+    include_resolved: bool = False,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[IncidentView]:
     safe_limit = min(max(limit, 1), 200)
     stmt = (
         select(AnalysisJob, AnalysisReport)
         .outerjoin(AnalysisReport, AnalysisReport.job_id == AnalysisJob.id)
+        .where(AnalysisJob.user_id == current_user.id)
         .order_by(AnalysisJob.created_at.desc())
         .limit(safe_limit)
     )
+    if not include_resolved:
+        stmt = stmt.where(AnalysisJob.resolved == False)  # noqa: E712
+
     rows = await db.execute(stmt)
 
     output: list[IncidentView] = []
@@ -150,7 +502,7 @@ async def list_incidents(limit: int = 50, db: AsyncSession = Depends(get_db)) ->
 
         service_name = str(payload.get("service_name", "unknown-service"))
         uptime_status = str(payload.get("uptime_status", "")).lower()
-        ui_status = _map_job_to_ui_status(job.status, uptime_status)
+        ui_status = _map_job_to_ui_status(job.status, uptime_status, job.resolved)
         logs = _extract_logs(payload, report_json)
         confidence = float(report.confidence) if report else 0.0
         proposed_fix = _extract_proposed_fix(report, report_json, service_name)
@@ -164,15 +516,59 @@ async def list_incidents(limit: int = 50, db: AsyncSession = Depends(get_db)) ->
                 logs=logs,
                 confidence=max(0.0, min(1.0, confidence)),
                 proposedFix=proposed_fix,
+                jobId=str(job.id),
             )
         )
 
     return output
 
 
+@app.get("/api/v1/analysis/services", response_model=list[ServiceSummary])
+async def list_services(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[ServiceSummary]:
+    result = await db.execute(
+        select(AnalysisJob)
+        .where(AnalysisJob.user_id == current_user.id)
+        .order_by(AnalysisJob.created_at.desc())
+        .limit(500)
+    )
+    jobs = result.scalars().all()
+
+    # Aggregate by service name
+    seen: dict[str, ServiceSummary] = {}
+    for job in jobs:
+        payload = job.request_payload or {}
+        service_name = str(payload.get("service_name", "unknown-service"))
+        metadata = payload.get("metadata", {}) or {}
+        uptime_status = str(payload.get("uptime_status", "")).lower()
+        ui_status = _map_job_to_ui_status(job.status, uptime_status, job.resolved)
+
+        if service_name not in seen:
+            seen[service_name] = ServiceSummary(
+                service=service_name,
+                serviceType=str(metadata.get("service_type", "service")),
+                last_seen=job.created_at,
+                incident_count=1,
+                last_status=ui_status,
+            )
+        else:
+            seen[service_name].incident_count += 1
+            if job.created_at > seen[service_name].last_seen:
+                seen[service_name].last_seen = job.created_at
+                seen[service_name].last_status = ui_status
+
+    return list(seen.values())
+
+
 @app.get("/api/v1/analysis/jobs/{job_id}", response_model=JobStatusResponse)
-async def get_job(job_id: UUID, db: AsyncSession = Depends(get_db)) -> JobStatusResponse:
-    result = await db.execute(select(AnalysisJob).where(AnalysisJob.id == job_id))
+async def get_job(
+    job_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> JobStatusResponse:
+    result = await db.execute(select(AnalysisJob).where(AnalysisJob.id == job_id, AnalysisJob.user_id == current_user.id))
     job = result.scalar_one_or_none()
     if job is None:
         raise HTTPException(status_code=404, detail="Job not found")
@@ -188,15 +584,23 @@ async def get_job(job_id: UUID, db: AsyncSession = Depends(get_db)) -> JobStatus
 
 
 @app.get("/api/v1/analysis/jobs/{job_id}/result")
-async def get_result(job_id: UUID, db: AsyncSession = Depends(get_db)) -> dict[str, Any]:
-    result = await db.execute(select(AnalysisReport).where(AnalysisReport.job_id == job_id))
+async def get_result(
+    job_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    result = await db.execute(
+        select(AnalysisReport)
+        .join(AnalysisJob, AnalysisJob.id == AnalysisReport.job_id)
+        .where(AnalysisReport.job_id == job_id, AnalysisJob.user_id == current_user.id)
+    )
     report = result.scalar_one_or_none()
     if report is None:
-        job_result = await db.execute(select(AnalysisJob).where(AnalysisJob.id == job_id))
+        job_result = await db.execute(select(AnalysisJob).where(AnalysisJob.id == job_id, AnalysisJob.user_id == current_user.id))
         job = job_result.scalar_one_or_none()
         if job is None:
             raise HTTPException(status_code=404, detail="Job not found")
-        if job.status in {JobStatus.queued, JobStatus.running}:
+        if job.status in {JobStatus.queued.value, JobStatus.running.value}:
             raise HTTPException(status_code=409, detail="Job still processing")
         raise HTTPException(status_code=404, detail="Report not found")
 
@@ -204,55 +608,115 @@ async def get_result(job_id: UUID, db: AsyncSession = Depends(get_db)) -> dict[s
 
 
 @app.get("/api/v1/analysis/jobs/{job_id}/summary", response_model=SummaryResponse)
-async def get_summary(job_id: UUID, db: AsyncSession = Depends(get_db)) -> SummaryResponse:
-    result = await db.execute(select(AnalysisReport).where(AnalysisReport.job_id == job_id))
+async def get_summary(
+    job_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> SummaryResponse:
+    result = await db.execute(
+        select(AnalysisReport)
+        .join(AnalysisJob, AnalysisJob.id == AnalysisReport.job_id)
+        .where(AnalysisReport.job_id == job_id, AnalysisJob.user_id == current_user.id)
+    )
     report = result.scalar_one_or_none()
     if report is None:
         raise HTTPException(status_code=404, detail="Report not found")
 
-    return SummaryResponse(
-        incident_id=report.incident_id,
-        summary_text=report.summary_text,
-        confidence=report.confidence,
-    )
+    return SummaryResponse(incident_id=report.incident_id, summary_text=report.summary_text, confidence=report.confidence)
 
 
 @app.get("/api/v1/analysis/jobs/{job_id}/download")
-async def download_report(job_id: UUID, db: AsyncSession = Depends(get_db)) -> Response:
-    result = await db.execute(select(AnalysisReport).where(AnalysisReport.job_id == job_id))
+async def download_report(
+    job_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    result = await db.execute(
+        select(AnalysisReport)
+        .join(AnalysisJob, AnalysisJob.id == AnalysisReport.job_id)
+        .where(AnalysisReport.job_id == job_id, AnalysisJob.user_id == current_user.id)
+    )
     report = result.scalar_one_or_none()
     if report is None:
         raise HTTPException(status_code=404, detail="Report not found")
 
     content = json.dumps(report.report_json, indent=2).encode("utf-8")
-    filename = f"analysis-report-{job_id}.json"
     return Response(
         content=content,
         media_type="application/json",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        headers={"Content-Disposition": f'attachment; filename="analysis-report-{job_id}.json"'},
     )
+
+
+# ---------------------------------------------------------------------------
+# WebSocket
+# ---------------------------------------------------------------------------
+
+@app.websocket("/ws/incidents")
+async def ws_incidents(websocket: WebSocket, token: str | None = None) -> None:
+    user_id = decode_token(token or "", expected_type="access") if token else None
+    if user_id is None:
+        await websocket.close(code=4001)
+        return
+
+    await websocket.accept()
+
+    if redis_client is None:
+        # No Redis — keep connection alive but send nothing
+        try:
+            while True:
+                await asyncio.sleep(30)
+                await websocket.send_json({"type": "ping"})
+        except (WebSocketDisconnect, Exception):
+            return
+
+    channel = f"user:{user_id}:events"
+    pubsub = redis_client.pubsub()
+    await pubsub.subscribe(channel)
+
+    try:
+        async for message in pubsub.listen():
+            if message["type"] == "message":
+                try:
+                    data = json.loads(message["data"])
+                    await websocket.send_json(data)
+                except Exception:
+                    pass
+    except (WebSocketDisconnect, Exception):
+        pass
+    finally:
+        await pubsub.unsubscribe(channel)
+        await pubsub.aclose()
+
+
+# ---------------------------------------------------------------------------
+# Health / root
+# ---------------------------------------------------------------------------
+
+@app.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok"}
 
 
 @app.get("/")
 async def root() -> dict[str, Any]:
     return {
         "service": settings.app_name,
+        "version": "1.0.0",
         "time": datetime.now(tz=timezone.utc).isoformat(),
-        "endpoints": [
-            "POST /api/v1/analysis/jobs",
-            "GET /api/v1/analysis/incidents",
-            "GET /api/v1/analysis/jobs/{job_id}",
-            "GET /api/v1/analysis/jobs/{job_id}/result",
-            "GET /api/v1/analysis/jobs/{job_id}/summary",
-            "GET /api/v1/analysis/jobs/{job_id}/download",
-        ],
     }
 
 
-def _map_job_to_ui_status(job_status: JobStatus, uptime_status: str) -> str:
-    if job_status in {JobStatus.queued, JobStatus.running}:
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _map_job_to_ui_status(job_status: str, uptime_status: str, resolved: bool = False) -> str:
+    if resolved:
+        return "resolved"
+    if job_status in {JobStatus.queued.value, JobStatus.running.value}:
         return "resolving"
-    if job_status == JobStatus.failed:
+    if job_status == JobStatus.failed.value:
         return "warning"
     if uptime_status == "degraded":
         return "warning"
@@ -318,12 +782,7 @@ def _select_summary_text(raw_summary: str, report_json: dict[str, Any], service_
 
 def _has_required_sections(summary: str) -> bool:
     normalized = " ".join(summary.lower().split())
-    required_sections = (
-        "investigation steps",
-        "problems found",
-        "other important info",
-        "solution suggestions",
-    )
+    required_sections = ("investigation steps", "problems found", "other important info", "solution suggestions")
     return all(section in normalized for section in required_sections)
 
 
@@ -331,7 +790,6 @@ def _is_low_quality_summary(summary: str) -> bool:
     normalized = " ".join(summary.lower().split())
     if not normalized:
         return True
-
     weak_markers = (
         "without a structured report",
         "manual triage",
@@ -347,7 +805,6 @@ def _is_low_quality_summary(summary: str) -> bool:
 def _build_summary_fallback(report_json: dict[str, Any], service_name: str, base_summary: str = "") -> str:
     hypotheses = _extract_top_hypotheses(report_json)
     evidence = _extract_evidence_highlights(report_json)
-
     lines = [
         "## Investigation Steps",
         f"- Diagnosis markdown was not provided for **{service_name}**.",
@@ -355,27 +812,15 @@ def _build_summary_fallback(report_json: dict[str, Any], service_name: str, base
         "",
         "## Problems Found",
     ]
-
     if base_summary:
         lines.append(f"- {_truncate_line(base_summary)}")
-
     if hypotheses:
         lines.extend(hypotheses)
-
     if evidence:
-        lines.append("")
-        lines.append("## Other Important Info")
-        lines.append("- Evidence highlights:")
-        lines.extend(evidence)
+        lines += ["", "## Other Important Info", "- Evidence highlights:"] + evidence
     else:
-        lines.append("")
-        lines.append("## Other Important Info")
-        lines.append("- No additional evidence highlights were available in this report.")
-
-    lines.append("")
-    lines.append("## Solution Suggestions")
-    lines.append("- Use the execution plan below to validate or rule out these hypotheses.")
-
+        lines += ["", "## Other Important Info", "- No additional evidence highlights were available in this report."]
+    lines += ["", "## Solution Suggestions", "- Use the execution plan below to validate or rule out these hypotheses."]
     return "\n".join(lines)
 
 
@@ -383,7 +828,6 @@ def _extract_top_hypotheses(report_json: dict[str, Any]) -> list[str]:
     items = report_json.get("root_cause_hypotheses", [])
     if not isinstance(items, list):
         return []
-
     output: list[str] = []
     for item in items:
         if not isinstance(item, dict):
@@ -391,16 +835,10 @@ def _extract_top_hypotheses(report_json: dict[str, Any]) -> list[str]:
         hypothesis = str(item.get("hypothesis", "")).strip()
         if not hypothesis:
             continue
-
         confidence = _parse_confidence_percent(item.get("confidence"))
-        if confidence is None:
-            output.append(f"- {hypothesis}")
-        else:
-            output.append(f"- {hypothesis} ({confidence}% confidence)")
-
+        output.append(f"- {hypothesis} ({confidence}% confidence)" if confidence is not None else f"- {hypothesis}")
         if len(output) >= 2:
             break
-
     return output
 
 
@@ -408,7 +846,6 @@ def _extract_evidence_highlights(report_json: dict[str, Any]) -> list[str]:
     items = report_json.get("evidence", [])
     if not isinstance(items, list):
         return []
-
     output: list[str] = []
     for item in items:
         if not isinstance(item, dict):
@@ -419,7 +856,6 @@ def _extract_evidence_highlights(report_json: dict[str, Any]) -> list[str]:
         output.append(f"- {_truncate_line(snippet)}")
         if len(output) >= 2:
             break
-
     return output
 
 
@@ -428,38 +864,25 @@ def _parse_confidence_percent(value: Any) -> int | None:
         numeric = float(value)
     except (TypeError, ValueError):
         return None
-
-    if numeric < 0:
-        numeric = 0
-    if numeric <= 1:
-        numeric *= 100
-    if numeric > 100:
-        numeric = 100
+    numeric = max(0.0, min(numeric if numeric > 1 else numeric * 100, 100))
     return int(round(numeric))
 
 
 def _truncate_line(text: str, max_len: int = 180) -> str:
     normalized = " ".join(text.split())
-    if len(normalized) <= max_len:
-        return normalized
-    return f"{normalized[: max_len - 3].rstrip()}..."
+    return normalized if len(normalized) <= max_len else f"{normalized[: max_len - 3].rstrip()}..."
 
 
 def _normalize_step_from_action(item: dict[str, Any]) -> str:
     command = str(item.get("suggested_command", "")).strip()
     description = str(item.get("description", "")).strip()
     title = str(item.get("title", "")).strip()
-
-    placeholder_markers = (
-        "# manual investigation command",
-        "# inspect logs and service health manually",
-    )
+    placeholder_markers = ("# manual investigation command", "# inspect logs and service health manually")
     normalized_command = command.lower()
     candidates: list[str] = []
     if command and all(marker not in normalized_command for marker in placeholder_markers):
         candidates.append(command)
     candidates.extend([description, title])
-
     for candidate in candidates:
         cleaned = _clean_step_text(candidate)
         if cleaned:
@@ -470,12 +893,10 @@ def _normalize_step_from_action(item: dict[str, Any]) -> str:
 def _extract_solution_steps(summary: str) -> list[str]:
     if not summary.strip():
         return []
-
     pattern = r"##\s*Solution Suggestions\s*(.*?)(?=\n##\s|\Z)"
     match = re.search(pattern, summary, flags=re.IGNORECASE | re.DOTALL)
     if not match:
         return []
-
     body = match.group(1)
     steps: list[str] = []
     for raw_line in body.splitlines():
@@ -492,20 +913,16 @@ def _clean_step_text(value: str) -> str:
     text = " ".join(str(value).split()).strip()
     if not text:
         return ""
-
     text = re.sub(r"^[-*]\s+", "", text)
     text = re.sub(r"^\d+\.\s+", "", text).strip()
     text = text.replace("**", "").strip()
-
     lower = text.lower()
     if lower.startswith("manual-only text:"):
         text = text.split(":", 1)[1].strip()
     elif lower.startswith("manual only text:"):
         text = text.split(":", 1)[1].strip()
-
     if lower.startswith("safety note:") or "do not execute automatically" in lower:
         return ""
-
     if text.endswith(":"):
         text = text[:-1].strip()
     return text

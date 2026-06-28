@@ -62,7 +62,7 @@ export const IncidentCard = ({
           <span
             style={{ fontSize: "0.8125rem", color: "var(--text-secondary)" }}
           >
-            emen3998@gmail.com
+            {incident.serviceType}
           </span>
 
           <div
@@ -157,18 +157,18 @@ export const IncidentCard = ({
           <span
             style={{
               color:
-                incident.status === "online"
-                  ? "var(--text-primary)"
-                  : incident.status === "issue"
-                    ? "var(--status-issue)"
-                    : "var(--text-primary)",
+                incident.status === "issue" ? "var(--status-issue)"
+                : incident.status === "warning" ? "var(--status-warning)"
+                : incident.status === "resolving" ? "var(--status-resolving)"
+                : incident.status === "resolved" ? "var(--status-online)"
+                : "var(--text-primary)",
             }}
           >
-            {incident.status === "resolving"
-              ? "Diagnosing"
-              : incident.status === "issue"
-                ? "Offline (Down)"
-                : "Connected"}
+            {incident.status === "resolving" ? "Diagnosing"
+              : incident.status === "issue" ? "Offline (Down)"
+              : incident.status === "warning" ? "Degraded"
+              : incident.status === "resolved" ? "Resolved"
+              : "Connected"}
           </span>
         </div>
 
@@ -301,7 +301,7 @@ export const IncidentCard = ({
                     Review Suggestions
                   </button>
                   <button
-                    className="btn gh the btn-secondary"
+                    className="btn btn-secondary"
                     onClick={(e) => {
                       e.stopPropagation();
                       setExpanded(false);

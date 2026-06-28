@@ -8,9 +8,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    app_name: str = "analysis-agent"
+    app_name: str = "ts-rx"
     environment: str = "dev"
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/analysis_agent"
+    redis_url: str = "redis://localhost:6379"
 
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-2.5-flash"
@@ -27,6 +28,21 @@ class Settings(BaseSettings):
 
     allowed_read_roots: str = "src,services,config"
     project_root: Path = Field(default_factory=Path.cwd)
+
+    # Auth
+    jwt_secret: str = "change-me-in-production-use-a-long-random-string"
+    access_token_expire_minutes: int = 15
+    refresh_token_expire_days: int = 7
+
+    # SMTP notifications (optional)
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_pass: str = ""
+    smtp_from: str = "noreply@tsrx.app"
+
+    # App URL for notification links
+    app_url: str = "http://localhost:5173"
 
     @property
     def read_roots(self) -> list[Path]:

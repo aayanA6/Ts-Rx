@@ -10,8 +10,9 @@ export interface Incident {
   id: string;
   service: string;
   serviceType: string;
-  status: 'online' | 'issue' | 'warning' | 'resolving';
+  status: 'online' | 'issue' | 'warning' | 'resolving' | 'resolved';
   logs: string[];
   confidence: number;
   proposedFix: ProposedFix | null;
+  jobId?: string;
 }

@@ -7,8 +7,76 @@ from typing import Any, Literal
 from urllib.parse import urlparse
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
+
+# ---------------------------------------------------------------------------
+# Auth schemas
+# ---------------------------------------------------------------------------
+
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
+class UserResponse(BaseModel):
+    id: UUID
+    email: str
+    created_at: datetime
+
+
+class ApiKeyCreateRequest(BaseModel):
+    label: str = Field(default="Default", min_length=1, max_length=100)
+
+
+class ApiKeyResponse(BaseModel):
+    id: UUID
+    label: str
+    created_at: datetime
+    last_used_at: datetime | None = None
+
+
+class ApiKeyCreatedResponse(BaseModel):
+    id: UUID
+    label: str
+    key: str  # plaintext — returned only once
+    created_at: datetime
+
+
+class NotificationSettingsRequest(BaseModel):
+    email_enabled: bool = False
+    discord_enabled: bool = False
+    discord_webhook_url: str | None = Field(default=None, max_length=500)
+    slack_enabled: bool = False
+    slack_webhook_url: str | None = Field(default=None, max_length=500)
+
+
+class NotificationSettingsResponse(BaseModel):
+    email_enabled: bool
+    discord_enabled: bool
+    discord_webhook_url: str | None
+    slack_enabled: bool
+    slack_webhook_url: str | None
+
+
+# ---------------------------------------------------------------------------
+# Incident / Job schemas (existing + extended)
+# ---------------------------------------------------------------------------
 
 class UptimeStatus(str, Enum):
     down = "down"
@@ -83,6 +151,23 @@ class UptimeKumaJobCreate(BaseModel):
         return parsed.hostname
 
 
+class IngestPayload(BaseModel):
+    """Flexible payload for the /ingest endpoint — accepts UP for resolution too."""
+    monitor: str = Field(min_length=1, max_length=200)
+    status: str = Field(min_length=1, max_length=40)
+    msg: str = Field(default="", max_length=4000)
+    url: str = Field(default="", max_length=2000)
+    time: datetime
+    log_snippets: list[LogSnippet] = Field(default_factory=list, max_length=1000)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class IngestResponse(BaseModel):
+    action: Literal["queued", "resolved", "ignored"]
+    job_id: UUID | None = None
+    message: str = ""
+
+
 class JobCreatedResponse(BaseModel):
     job_id: UUID
     status: str
@@ -106,10 +191,19 @@ class IncidentView(BaseModel):
     id: str
     service: str
     serviceType: str
-    status: Literal["online", "issue", "warning", "resolving"]
+    status: Literal["online", "issue", "warning", "resolving", "resolved"]
     logs: list[str]
     confidence: float = Field(ge=0, le=1)
     proposedFix: ProposedFixView | None = None
+    jobId: str | None = None
+
+
+class ServiceSummary(BaseModel):
+    service: str
+    serviceType: str
+    last_seen: datetime
+    incident_count: int
+    last_status: str
 
 
 class Hypothesis(BaseModel):

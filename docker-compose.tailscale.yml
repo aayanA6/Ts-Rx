@@ -1,0 +1,11 @@
+# Override for Tailscale deployment (no TLS certs needed — Tailscale handles encryption)
+# Usage: docker compose -f docker-compose.yml -f docker-compose.tailscale.yml --profile tailscale up -d
+
+services:
+  nginx:
+    volumes:
+      - ./nginx/nginx-tailscale.conf:/etc/nginx/nginx.conf:ro
+    profiles:
+      - tailscale
+    ports:
+      - "80:80"

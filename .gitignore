@@ -1,3 +1,20 @@
+# Environment / secrets — never commit these
+.env
+.env.local
+.env.*.local
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
 # Logs
 logs
 *.log

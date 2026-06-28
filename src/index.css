@@ -110,6 +110,7 @@ a:hover {
 .status-dot.issue { background-color: var(--status-issue); }
 .status-dot.warning { background-color: var(--status-warning); }
 .status-dot.resolving { background-color: var(--status-resolving); }
+.status-dot.resolved { background-color: var(--status-online); opacity: 0.5; }
 
 /* Buttons */
 .btn {
