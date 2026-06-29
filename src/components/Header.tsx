@@ -1,4 +1,4 @@
-import { HelpCircle, Grip, Server, AppWindow, Users, Navigation, ClipboardList, Globe, Settings, MapPin, Activity, LogOut } from 'lucide-react';
+import { HelpCircle, Grip, Server, Settings, MapPin, Activity, LogOut } from 'lucide-react';
 import { clearTokens } from '../lib/api';
 
 interface HeaderProps {
@@ -12,11 +12,6 @@ const Header = ({ activeTab, setActiveTab, userEmail, onLogout }: HeaderProps) =
   const tabs = [
     { id: 'Services', icon: Server, label: 'Services' },
     { id: 'Doctor', icon: Activity, label: 'Doctor' },
-    { id: 'Apps', icon: AppWindow, label: 'Apps' },
-    { id: 'Users', icon: Users, label: 'Users' },
-    { id: 'Access controls', icon: Navigation, label: 'Access controls' },
-    { id: 'Logs', icon: ClipboardList, label: 'Logs' },
-    { id: 'DNS', icon: Globe, label: 'DNS' },
     { id: 'Settings', icon: Settings, label: 'Settings' },
   ];
 
