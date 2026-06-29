@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Search, Filter, Download } from 'lucide-react';
+import { Search } from 'lucide-react';
 import IncidentCard from './IncidentCard';
 import ReviewModal from './ReviewModal';
 import { Incident } from '../lib/types';
@@ -124,12 +124,6 @@ const Dashboard = () => {
             style={{ paddingLeft: '2.25rem', paddingRight: '1rem', backgroundColor: 'var(--bg-base)' }}
           />
         </div>
-        <button className="btn btn-secondary" style={{ padding: '0.375rem 0.75rem', gap: '0.5rem', display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-base)' }}>
-          <Filter size={16} color="var(--text-secondary)" /> Filters
-        </button>
-        <button className="btn btn-secondary" style={{ padding: '0.375rem 0.5rem', display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-base)' }}>
-          <Download size={16} color="var(--text-secondary)" />
-        </button>
       </div>
 
       <div style={{ display: 'inline-block', padding: '0.125rem 0.625rem', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', alignSelf: 'flex-start', marginBottom: '1rem' }}>
@@ -171,7 +165,11 @@ const Dashboard = () => {
       </div>
 
       {selectedIncident && (
-        <ReviewModal incident={selectedIncident} onClose={() => setSelectedIncidentId(null)} />
+        <ReviewModal
+          incident={selectedIncident}
+          onClose={() => setSelectedIncidentId(null)}
+          onResolve={() => void loadIncidents()}
+        />
       )}
     </div>
   );

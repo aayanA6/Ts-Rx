@@ -86,6 +86,11 @@ export async function getMe() {
 }
 
 // Incidents
+export async function resolveIncident(incidentId: string) {
+  const res = await apiFetch(`/api/v1/analysis/incidents/${incidentId}/resolve`, { method: 'POST' });
+  if (!res.ok && res.status !== 404) throw new Error('Failed to resolve incident');
+}
+
 export async function fetchIncidents(includeResolved = false) {
   const res = await apiFetch(`/api/v1/analysis/incidents?include_resolved=${includeResolved}`);
   if (!res.ok) throw new Error(`Failed: ${res.status}`);

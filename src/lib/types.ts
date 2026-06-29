@@ -15,4 +15,5 @@ export interface Incident {
   confidence: number;
   proposedFix: ProposedFix | null;
   jobId?: string;
+  detectedAt?: string;
 }

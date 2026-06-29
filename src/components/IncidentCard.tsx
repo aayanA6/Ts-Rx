@@ -1,8 +1,26 @@
-import { TerminalSquare, MoreHorizontal, ChevronDown } from "lucide-react";
+import { TerminalSquare, ChevronDown, ChevronUp } from "lucide-react";
 import { Incident } from "../lib/types";
 import { useState } from "react";
 import { getDiagnosisSummaryMarkdown } from "../lib/diagnosisSummary";
 import { renderMarkdownBlocks } from "../lib/renderMarkdown";
+
+function formatAge(iso: string): string {
+  const ms = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(ms / 60_000);
+  if (m < 1) return "Just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
+const STATUS_INFO: Record<string, { label: string; color: string }> = {
+  issue: { label: "Offline (Down)", color: "var(--status-issue)" },
+  warning: { label: "Degraded", color: "var(--status-warning)" },
+  resolving: { label: "Diagnosing", color: "var(--status-resolving)" },
+  resolved: { label: "Resolved", color: "var(--status-online)" },
+  online: { label: "Connected", color: "var(--text-primary)" },
+};
 
 export const IncidentCard = ({
   incident,
@@ -16,6 +34,14 @@ export const IncidentCard = ({
     incident.status === "issue" || incident.status === "resolving",
   );
 
+  const { label: statusLabel, color: statusColor } =
+    STATUS_INFO[incident.status] ?? { label: incident.status, color: "var(--text-secondary)" };
+
+  const confidencePct =
+    incident.confidence > 0 ? `${Math.round(incident.confidence * 100)}%` : "—";
+
+  const detectedLabel = incident.detectedAt ? formatAge(incident.detectedAt) : "—";
+
   return (
     <div
       style={{
@@ -25,7 +51,7 @@ export const IncidentCard = ({
       }}
       className="ts-row-hover"
     >
-      {/* Table Row Style Header matching the new Dashboard grid */}
+      {/* Table row */}
       <div
         style={{
           display: "grid",
@@ -44,43 +70,16 @@ export const IncidentCard = ({
         }
         onClick={() => setExpanded(!expanded)}
       >
-        {/* Name Column */}
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.125rem" }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span
-              style={{
-                fontWeight: 600,
-                fontSize: "0.875rem",
-                color: "var(--text-primary)",
-              }}
-            >
-              {incident.service.toLowerCase().replace(/\s+/g, "-")}
-            </span>
-          </div>
-          <span
-            style={{ fontSize: "0.8125rem", color: "var(--text-secondary)" }}
-          >
+        {/* SERVICE */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.125rem" }}>
+          <span style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--text-primary)" }}>
+            {incident.service}
+          </span>
+          <span style={{ fontSize: "0.8125rem", color: "var(--text-secondary)" }}>
             {incident.serviceType}
           </span>
-
-          <div
-            style={{ display: "flex", gap: "0.375rem", marginTop: "0.375rem" }}
-          >
-            <span
-              style={{
-                fontSize: "0.625rem",
-                backgroundColor: "rgba(255,255,255,0.1)",
-                color: "var(--text-secondary)",
-                padding: "0.125rem 0.375rem",
-                borderRadius: "4px",
-                fontWeight: 600,
-              }}
-            >
-              Expiry disabled
-            </span>
-            {incident.status !== "online" && (
+          {incident.status !== "online" && incident.status !== "resolved" && (
+            <div style={{ marginTop: "0.375rem" }}>
               <span
                 style={{
                   fontSize: "0.625rem",
@@ -93,86 +92,33 @@ export const IncidentCard = ({
               >
                 Action Required
               </span>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
-        {/* IP Column */}
+        {/* STATUS */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8125rem" }}>
+          <span className={`status-dot ${incident.status}`}></span>
+          <span style={{ color: statusColor }}>{statusLabel}</span>
+        </div>
+
+        {/* CONFIDENCE */}
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.25rem",
             fontSize: "0.8125rem",
-            color: "var(--text-secondary)",
+            color: incident.confidence > 0 ? "var(--text-primary)" : "var(--text-muted)",
+            fontWeight: incident.confidence > 0 ? 500 : 400,
           }}
         >
-          <span>
-            {incident.id === "inc-012" ? "100.89.33.114" : "100.100.6.57"}
-          </span>
-          <ChevronDown size={14} color="var(--text-muted)" />
+          {confidencePct}
         </div>
 
-        {/* Version Column */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            fontSize: "0.8125rem",
-            color: "var(--text-secondary)",
-          }}
-        >
-          <span
-            style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}
-          >
-            <span
-              style={{
-                color:
-                  incident.status === "issue"
-                    ? "var(--status-issue)"
-                    : "var(--text-muted)",
-              }}
-            >
-              {incident.status === "issue" ? "!" : "+"}
-            </span>
-            1.94.2
-          </span>
-          <span style={{ color: "var(--text-muted)" }}>
-            Linux 6.8.0-generic
-          </span>
+        {/* DETECTED */}
+        <div style={{ fontSize: "0.8125rem", color: "var(--text-secondary)" }}>
+          {detectedLabel}
         </div>
 
-        {/* Last Seen Column */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            fontSize: "0.8125rem",
-          }}
-        >
-          <span
-            className={`status-dot ${incident.status === "online" ? "online" : incident.status}`}
-          ></span>
-          <span
-            style={{
-              color:
-                incident.status === "issue" ? "var(--status-issue)"
-                : incident.status === "warning" ? "var(--status-warning)"
-                : incident.status === "resolving" ? "var(--status-resolving)"
-                : incident.status === "resolved" ? "var(--status-online)"
-                : "var(--text-primary)",
-            }}
-          >
-            {incident.status === "resolving" ? "Diagnosing"
-              : incident.status === "issue" ? "Offline (Down)"
-              : incident.status === "warning" ? "Degraded"
-              : incident.status === "resolved" ? "Resolved"
-              : "Connected"}
-          </span>
-        </div>
-
-        {/* Action Column */}
+        {/* EXPAND */}
         <div
           style={{
             display: "flex",
@@ -181,11 +127,11 @@ export const IncidentCard = ({
             color: "var(--text-muted)",
           }}
         >
-          <MoreHorizontal size={18} />
+          {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </div>
       </div>
 
-      {/* Agent Output - Extends from the row when there's an issue */}
+      {/* Expanded agent output */}
       {expanded &&
         (incident.status === "issue" || incident.status === "resolving") && (
           <div
@@ -240,9 +186,7 @@ export const IncidentCard = ({
                     key={i}
                     style={{ display: "flex", gap: "0.75rem", lineHeight: 1.6 }}
                   >
-                    <span style={{ color: "#60A5FA", userSelect: "none" }}>
-                      $
-                    </span>
+                    <span style={{ color: "#60A5FA", userSelect: "none" }}>$</span>
                     <span style={{ color: "#D4D4D8" }}>{log}</span>
                   </div>
                 ))}
@@ -283,10 +227,7 @@ export const IncidentCard = ({
                       overflow: "hidden",
                     }}
                   >
-                    {renderMarkdownBlocks(
-                      getDiagnosisSummaryMarkdown(incident),
-                      5,
-                    )}
+                    {renderMarkdownBlocks(getDiagnosisSummaryMarkdown(incident), 5)}
                   </div>
                 </div>
 
