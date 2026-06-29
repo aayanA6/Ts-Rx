@@ -63,6 +63,7 @@ from analysis_agent.schemas import (
     UptimeStatus,
     UserResponse,
 )
+from analysis_agent.limiter import check_auth_rate_limit
 from analysis_agent.worker import AnalysisWorker, set_redis
 
 settings = get_settings()
@@ -91,9 +92,18 @@ redis_client = None
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
+def _build_cors_origins() -> list[str]:
+    origins: set[str] = {settings.app_url.rstrip("/")}
+    for extra in settings.cors_origins.split(","):
+        extra = extra.strip().rstrip("/")
+        if extra:
+            origins.add(extra)
+    return sorted(origins)
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_build_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -117,10 +127,27 @@ async def validation_exception_handler(_: Request, exc: RequestValidationError):
     return JSONResponse(status_code=400, content={"message": "Malformed payload", "detail": exc.errors()})
 
 
+_DEFAULT_JWT_SECRET = "change-me-in-production-use-a-long-random-string"
+
+
 @app.on_event("startup")
 async def on_startup() -> None:
     global redis_client
 
+    if settings.jwt_secret == _DEFAULT_JWT_SECRET:
+        if settings.environment == "production":
+            raise RuntimeError(
+                "JWT_SECRET is set to the insecure default. "
+                "Generate one with: openssl rand -hex 64"
+            )
+        logger.warning(
+            "⚠️  JWT_SECRET is the insecure default — acceptable in dev only. "
+            "Set JWT_SECRET before deploying to production."
+        )
+
+    # Schema management: create_all is idempotent for new tables but does NOT
+    # apply ALTER TABLE for column additions. For schema changes on an existing
+    # database, recreate the database or apply the DDL manually.
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
@@ -196,7 +223,7 @@ async def get_user_by_api_key(api_key_header: str, db: AsyncSession) -> User:
 # ---------------------------------------------------------------------------
 
 @app.post("/auth/register", response_model=TokenResponse, status_code=201)
-async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)) -> TokenResponse:
+async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db), _rl: None = Depends(check_auth_rate_limit)) -> TokenResponse:
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none() is not None:
         raise HTTPException(status_code=409, detail="Email already registered")
@@ -213,7 +240,7 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)) ->
 
 
 @app.post("/auth/login", response_model=TokenResponse)
-async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)) -> TokenResponse:
+async def login(body: LoginRequest, db: AsyncSession = Depends(get_db), _rl: None = Depends(check_auth_rate_limit)) -> TokenResponse:
     result = await db.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
     if user is None or not verify_password(body.password, user.hashed_password):
@@ -505,7 +532,8 @@ async def list_incidents(
         ui_status = _map_job_to_ui_status(job.status, uptime_status, job.resolved)
         logs = _extract_logs(payload, report_json)
         confidence = float(report.confidence) if report else 0.0
-        proposed_fix = _extract_proposed_fix(report, report_json, service_name)
+        device_or_node = str(payload.get("device_or_node", "")).strip() or None
+        proposed_fix = _extract_proposed_fix(report, report_json, service_name, device_or_node)
 
         output.append(
             IncidentView(
@@ -517,6 +545,7 @@ async def list_incidents(
                 confidence=max(0.0, min(1.0, confidence)),
                 proposedFix=proposed_fix,
                 jobId=str(job.id),
+                detectedAt=job.created_at,
             )
         )
 
@@ -648,6 +677,35 @@ async def download_report(
     )
 
 
+@app.post("/api/v1/analysis/incidents/{incident_id}/resolve", status_code=204)
+async def resolve_incident(
+    incident_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    result = await db.execute(
+        select(AnalysisJob)
+        .where(
+            AnalysisJob.incident_id == incident_id,
+            AnalysisJob.user_id == current_user.id,
+            AnalysisJob.resolved == False,  # noqa: E712
+        )
+        .order_by(AnalysisJob.created_at.desc())
+        .limit(1)
+    )
+    job = result.scalar_one_or_none()
+    if job is None:
+        raise HTTPException(status_code=404, detail="Incident not found or already resolved")
+    job.resolved = True
+    job.resolved_at = datetime.now(tz=timezone.utc)
+    await db.commit()
+    if redis_client:
+        await redis_client.publish(
+            f"user:{current_user.id}:events",
+            json.dumps({"type": "incident_resolved", "incident_id": incident_id, "job_id": str(job.id)}),
+        )
+
+
 # ---------------------------------------------------------------------------
 # WebSocket
 # ---------------------------------------------------------------------------
@@ -742,10 +800,21 @@ def _extract_logs(payload: dict[str, Any], report_json: dict[str, Any]) -> list[
     return [description]
 
 
+_DESTRUCTIVE_RE = re.compile(
+    r"\b(rm\b|rmdir|kill\b|pkill|killall|DROP\b|TRUNCATE\b|DELETE\b|mkfs|dd\b|wipe\b|purge\b|shred\b)",
+    re.IGNORECASE,
+)
+
+
+def _find_destructive_steps(steps: list[str]) -> list[str]:
+    return [step for step in steps if _DESTRUCTIVE_RE.search(step)]
+
+
 def _extract_proposed_fix(
     report: AnalysisReport | None,
     report_json: dict[str, Any],
     service_name: str,
+    device_or_node: str | None = None,
 ) -> ProposedFixView | None:
     if report is None:
         return None
@@ -768,7 +837,16 @@ def _extract_proposed_fix(
     if not steps:
         return None
 
-    return ProposedFixView(description=summary, steps=steps[:8])
+    target = (device_or_node or "").strip() or None
+    destructive = _find_destructive_steps(steps) or None
+
+    return ProposedFixView(
+        description=summary,
+        markdown=summary,
+        steps=steps[:8],
+        destructiveActions=destructive,
+        targetNode=target,
+    )
 
 
 def _select_summary_text(raw_summary: str, report_json: dict[str, Any], service_name: str) -> str:

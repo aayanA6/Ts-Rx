@@ -41,8 +41,10 @@ class Settings(BaseSettings):
     smtp_pass: str = ""
     smtp_from: str = "noreply@tsrx.app"
 
-    # App URL for notification links
+    # App URL for notification links and CORS allow-list
     app_url: str = "http://localhost:5173"
+    # Extra CORS origins beyond app_url (comma-separated, e.g. "https://tailscale.com")
+    cors_origins: str = ""
 
     @property
     def read_roots(self) -> list[Path]:
