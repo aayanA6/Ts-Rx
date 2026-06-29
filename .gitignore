@@ -14,6 +14,10 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+analysis_agent.egg-info/
+
+# Dev artifacts
+eslint_errors.json
 
 # Logs
 logs

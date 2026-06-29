@@ -185,6 +185,9 @@ class JobStatusResponse(BaseModel):
 class ProposedFixView(BaseModel):
     description: str
     steps: list[str]
+    markdown: str | None = None
+    destructiveActions: list[str] | None = None
+    targetNode: str | None = None
 
 
 class IncidentView(BaseModel):
@@ -196,6 +199,7 @@ class IncidentView(BaseModel):
     confidence: float = Field(ge=0, le=1)
     proposedFix: ProposedFixView | None = None
     jobId: str | None = None
+    detectedAt: datetime | None = None
 
 
 class ServiceSummary(BaseModel):

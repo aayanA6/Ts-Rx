@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
 import math
 import re
 from typing import Any
@@ -208,10 +207,6 @@ class Analyzer:
 
 def confidence_from_report(report: AnalysisReport) -> float:
     return max((item.confidence for item in report.root_cause_hypotheses), default=0.0)
-
-
-def utcnow() -> datetime:
-    return datetime.utcnow()
 
 
 def _to_sequence(value: Any, *, limit: int) -> list[Any]:
