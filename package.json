@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:ext": "tsc -b && vite build",
+    "build:ext": "tsc -b && vite build --config vite.extension.config.ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },

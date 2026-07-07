@@ -17,3 +17,14 @@ export interface Incident {
   jobId?: string;
   detectedAt?: string;
 }
+
+export interface DeviceHealth {
+  id: string;
+  name: string;
+  hostname: string;
+  addresses: string[];
+  os: string;
+  lastSeen: string | null;
+  status: 'online' | 'issue' | 'warning' | 'resolving' | 'resolved' | 'offline';
+  incident: Incident | null;
+}

@@ -111,6 +111,7 @@ a:hover {
 .status-dot.warning { background-color: var(--status-warning); }
 .status-dot.resolving { background-color: var(--status-resolving); }
 .status-dot.resolved { background-color: var(--status-online); opacity: 0.5; }
+.status-dot.offline { background-color: var(--text-muted); }
 
 /* Buttons */
 .btn {

@@ -287,6 +287,9 @@ The extension adds a "Doctor" tab directly inside **tailscale.com/admin**, loadi
 | `APP_URL` | Prod | `http://localhost:5173` | Public URL of the app. Used for CORS + notification links |
 | `CORS_ORIGINS` | No | — | Extra CORS origins beyond APP_URL, comma-separated |
 | `GEMINI_MODEL` | No | `gemini-2.5-flash` | Gemini model name |
+| `TAILSCALE_OAUTH_CLIENT_ID` | No | — | OAuth client ID for tailnet device listing (Settings → OAuth clients in admin console) |
+| `TAILSCALE_OAUTH_CLIENT_SECRET` | No | — | OAuth client secret, paired with the above |
+| `TAILSCALE_TAILNET` | No | `-` | Tailnet identifier; `-` = the tailnet the OAuth client belongs to |
 | `REDIS_URL` | No | `redis://localhost:6379` | Redis DSN. WebSocket live updates require Redis |
 | `ENVIRONMENT` | No | `dev` | Set to `production` to enforce JWT_SECRET |
 | `SMTP_HOST` | No | — | SMTP server for email notifications |

@@ -46,6 +46,11 @@ class Settings(BaseSettings):
     # Extra CORS origins beyond app_url (comma-separated, e.g. "https://tailscale.com")
     cors_origins: str = ""
 
+    # Tailscale API (OAuth client credentials — for tailnet device listing)
+    tailscale_oauth_client_id: str | None = None
+    tailscale_oauth_client_secret: str | None = None
+    tailscale_tailnet: str = "-"  # "-" = the tailnet the OAuth client belongs to
+
     @property
     def read_roots(self) -> list[Path]:
         roots: list[Path] = []

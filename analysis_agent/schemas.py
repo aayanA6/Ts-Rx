@@ -210,6 +210,30 @@ class ServiceSummary(BaseModel):
     last_status: str
 
 
+class TailscaleDeviceRaw(BaseModel):
+    """Subset of fields from Tailscale's GET /tailnet/{tailnet}/devices response."""
+    model_config = ConfigDict(extra="ignore")
+
+    id: str
+    name: str
+    hostname: str = ""
+    addresses: list[str] = Field(default_factory=list)
+    os: str = ""
+    lastSeen: datetime | None = None
+    connectedToControl: bool = False
+
+
+class DeviceHealthView(BaseModel):
+    id: str
+    name: str
+    hostname: str
+    addresses: list[str] = Field(default_factory=list)
+    os: str = ""
+    lastSeen: datetime | None = None
+    status: Literal["online", "issue", "warning", "resolving", "resolved", "offline"] = "online"
+    incident: IncidentView | None = None
+
+
 class Hypothesis(BaseModel):
     hypothesis: str
     confidence: float = Field(ge=0, le=1)

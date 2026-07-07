@@ -2,12 +2,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
 import IncidentCard from './IncidentCard';
 import ReviewModal from './ReviewModal';
-import { Incident } from '../lib/types';
-import { fetchIncidents, createIncidentWebSocket } from '../lib/api';
+import DeviceHealthGrid from './DeviceHealthGrid';
+import { Incident, DeviceHealth } from '../lib/types';
+import { fetchIncidents, fetchDeviceHealth, createIncidentWebSocket } from '../lib/api';
 
 const Dashboard = () => {
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [devices, setDevices] = useState<DeviceHealth[]>([]);
+  const [devicesError, setDevicesError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showResolved, setShowResolved] = useState(false);
@@ -16,6 +19,18 @@ const Dashboard = () => {
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Ref so the WS callback always calls the latest version (avoids stale closure)
   const loadIncidentsRef = useRef<() => Promise<void>>(async () => {});
+
+  const loadDeviceHealth = useCallback(async () => {
+    try {
+      const data = await fetchDeviceHealth();
+      setDevices(data);
+      setDevicesError(null);
+    } catch (err) {
+      // Tailscale integration is optional — don't break the rest of the tab if it's not configured.
+      setDevices([]);
+      setDevicesError(err instanceof Error ? err.message : 'Failed to load tailnet devices');
+    }
+  }, []);
 
   const selectedIncident = selectedIncidentId
     ? incidents.find((i) => i.id === selectedIncidentId) ?? null
@@ -46,6 +61,11 @@ const Dashboard = () => {
     loadIncidentsRef.current = loadIncidents;
   }, [loadIncidents]);
 
+  const loadDeviceHealthRef = useRef(loadDeviceHealth);
+  useEffect(() => {
+    loadDeviceHealthRef.current = loadDeviceHealth;
+  }, [loadDeviceHealth]);
+
   const connectWs = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
@@ -53,6 +73,7 @@ const Dashboard = () => {
       const msg = data as { type: string };
       if (msg.type === 'job_update' || msg.type === 'incident_resolved') {
         void loadIncidentsRef.current();
+        void loadDeviceHealthRef.current();
       }
     });
 
@@ -71,6 +92,7 @@ const Dashboard = () => {
   // Initial load + WebSocket
   useEffect(() => {
     void loadIncidents();
+    void loadDeviceHealth();
     connectWs();
 
     return () => {
@@ -110,6 +132,15 @@ const Dashboard = () => {
           </label>
         </div>
       </div>
+
+      {devices.length > 0 && (
+        <DeviceHealthGrid devices={devices} onSelectIncident={setSelectedIncidentId} />
+      )}
+      {devicesError && devices.length === 0 && (
+        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          Tailnet device sync unavailable ({devicesError}). Configure TAILSCALE_OAUTH_CLIENT_ID/SECRET to enable it.
+        </div>
+      )}
 
       {/* Toolbar */}
       <div className="flex items-center gap-3">

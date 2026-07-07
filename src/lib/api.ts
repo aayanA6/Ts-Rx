@@ -1,4 +1,10 @@
-const BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ?? '';
+function resolveApiBase(): string {
+  const override = new URLSearchParams(window.location.search).get('apiBase');
+  if (override) return override.replace(/\/$/, '');
+  return import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ?? '';
+}
+
+const BASE = resolveApiBase();
 
 let _accessToken: string | null = localStorage.getItem('access_token');
 let _refreshToken: string | null = localStorage.getItem('refresh_token');
@@ -100,6 +106,13 @@ export async function fetchIncidents(includeResolved = false) {
 // Services
 export async function fetchServices() {
   const res = await apiFetch('/api/v1/analysis/services');
+  if (!res.ok) throw new Error(`Failed: ${res.status}`);
+  return res.json();
+}
+
+// Tailscale tailnet device health
+export async function fetchDeviceHealth() {
+  const res = await apiFetch('/api/v1/tailscale/devices');
   if (!res.ok) throw new Error(`Failed: ${res.status}`);
   return res.json();
 }

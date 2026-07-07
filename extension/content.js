@@ -1,4 +1,4 @@
-const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE = 'http://100.90.63.81';
 const DOCTOR_PATH = '/admin/doctor';
 const HIDDEN_ATTR = 'data-doctor-hidden';
 const PREV_DISPLAY_ATTR = 'data-doctor-prev-display';

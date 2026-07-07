@@ -45,6 +45,7 @@ from analysis_agent.schemas import (
     ApiKeyCreateRequest,
     ApiKeyCreatedResponse,
     ApiKeyResponse,
+    DeviceHealthView,
     IncidentView,
     IngestPayload,
     IngestResponse,
@@ -58,12 +59,14 @@ from analysis_agent.schemas import (
     RegisterRequest,
     ServiceSummary,
     SummaryResponse,
+    TailscaleDeviceRaw,
     TokenResponse,
     UptimeKumaJobCreate,
     UptimeStatus,
     UserResponse,
 )
 from analysis_agent.limiter import check_auth_rate_limit
+from analysis_agent.tailscale_client import TailscaleClientError, get_tailscale_client
 from analysis_agent.worker import AnalysisWorker, set_redis
 
 settings = get_settings()
@@ -408,7 +411,7 @@ async def ingest_webhook(
             select(AnalysisJob).where(
                 AnalysisJob.user_id == user.id,
                 AnalysisJob.resolved == False,  # noqa: E712
-                AnalysisJob.request_payload["service_name"].astext == payload.monitor,
+                AnalysisJob.request_payload["service_name"].as_string() == payload.monitor,
             ).order_by(AnalysisJob.created_at.desc()).limit(10)
         )
         jobs = result.scalars().all()
@@ -501,12 +504,11 @@ async def create_job(
     return JobCreatedResponse(job_id=job.id, status=job.status.value)
 
 
-@app.get("/api/v1/analysis/incidents", response_model=list[IncidentView])
-async def list_incidents(
-    limit: int = 50,
+async def _fetch_incident_views(
+    current_user: User,
+    db: AsyncSession,
     include_resolved: bool = False,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    limit: int = 50,
 ) -> list[IncidentView]:
     safe_limit = min(max(limit, 1), 200)
     stmt = (
@@ -552,6 +554,16 @@ async def list_incidents(
     return output
 
 
+@app.get("/api/v1/analysis/incidents", response_model=list[IncidentView])
+async def list_incidents(
+    limit: int = 50,
+    include_resolved: bool = False,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[IncidentView]:
+    return await _fetch_incident_views(current_user, db, include_resolved, limit)
+
+
 @app.get("/api/v1/analysis/services", response_model=list[ServiceSummary])
 async def list_services(
     current_user: User = Depends(get_current_user),
@@ -589,6 +601,50 @@ async def list_services(
                 seen[service_name].last_status = ui_status
 
     return list(seen.values())
+
+
+def _match_device_to_incident(name: str, hostname: str, incidents: list[IncidentView]) -> IncidentView | None:
+    short_host = hostname.split(".")[0].lower() if hostname else ""
+    haystacks = {h for h in (name.lower(), hostname.lower(), short_host) if h}
+    for incident in incidents:
+        needles = {incident.service.lower()}
+        if incident.proposedFix and incident.proposedFix.targetNode:
+            needles.add(incident.proposedFix.targetNode.lower())
+        for needle in needles:
+            if needle and any(needle in hay or hay in needle for hay in haystacks):
+                return incident
+    return None
+
+
+@app.get("/api/v1/tailscale/devices", response_model=list[DeviceHealthView])
+async def list_device_health(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[DeviceHealthView]:
+    try:
+        raw_devices = await get_tailscale_client().list_devices()
+    except TailscaleClientError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    incidents = await _fetch_incident_views(current_user, db, include_resolved=False, limit=200)
+
+    output: list[DeviceHealthView] = []
+    for raw in raw_devices:
+        parsed = TailscaleDeviceRaw.model_validate(raw)
+        matched = _match_device_to_incident(parsed.name, parsed.hostname, incidents)
+        output.append(
+            DeviceHealthView(
+                id=parsed.id,
+                name=parsed.name,
+                hostname=parsed.hostname,
+                addresses=parsed.addresses,
+                os=parsed.os,
+                lastSeen=parsed.lastSeen,
+                status=matched.status if matched else ("online" if parsed.connectedToControl else "offline"),
+                incident=matched,
+            )
+        )
+    return output
 
 
 @app.get("/api/v1/analysis/jobs/{job_id}", response_model=JobStatusResponse)
