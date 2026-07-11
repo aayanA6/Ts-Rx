@@ -73,6 +73,26 @@ Optional teammate-provided extracted logs around the timestamp:
 }
 ```
 
+## Incident diagnosis: agentic per-service specialists
+
+Each incident is diagnosed by a two-tier agent system, not a single generic Gemini call:
+
+- `analysis_agent/orchestrator.py` — the main agent. Watches every incident regardless of
+  service, and deploys (or reuses) a specialist for that exact service.
+- `analysis_agent/specialist.py` — one agent per service. Builds the diagnosis prompt and
+  injects that service's own incident history into it, so recurring failures get recognized
+  instead of re-diagnosed from scratch each time.
+- `analysis_agent/service_kb.py` — after every diagnosis (successful or fallback), appends an
+  entry to that service's knowledge base at `data/service_kb/<service>.md` (gitignored, one
+  markdown file per service).
+
+If the Gemini call fails, the orchestrator falls back to `analysis_agent/fallback.py`'s
+deterministic report — the knowledge base still gets an entry either way, so failures are
+tracked too.
+
+See `test/agentic-demo.html` for a self-contained walkthrough of a live run across 3 services
+(open it directly in a browser — no server needed).
+
 ## Safety constraints
 
 - No command execution path is implemented in backend.
