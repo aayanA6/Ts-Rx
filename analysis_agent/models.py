@@ -74,6 +74,17 @@ class ApiKey(Base):
     user: Mapped[User] = relationship(back_populates="api_keys")
 
 
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
 class NotificationSettings(Base):
     __tablename__ = "notification_settings"
 
@@ -84,6 +95,8 @@ class NotificationSettings(Base):
     discord_webhook_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     slack_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     slack_webhook_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    ntfy_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    ntfy_topic: Mapped[str | None] = mapped_column(String(200), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     user: Mapped[User] = relationship(back_populates="notification_settings")

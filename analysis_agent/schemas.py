@@ -34,6 +34,19 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+class MessageResponse(BaseModel):
+    message: str
+
+
 class UserResponse(BaseModel):
     id: UUID
     email: str
@@ -64,6 +77,8 @@ class NotificationSettingsRequest(BaseModel):
     discord_webhook_url: str | None = Field(default=None, max_length=500)
     slack_enabled: bool = False
     slack_webhook_url: str | None = Field(default=None, max_length=500)
+    ntfy_enabled: bool = False
+    ntfy_topic: str | None = Field(default=None, max_length=200)
 
 
 class NotificationSettingsResponse(BaseModel):
@@ -72,6 +87,8 @@ class NotificationSettingsResponse(BaseModel):
     discord_webhook_url: str | None
     slack_enabled: bool
     slack_webhook_url: str | None
+    ntfy_enabled: bool
+    ntfy_topic: str | None
 
 
 # ---------------------------------------------------------------------------

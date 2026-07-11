@@ -6,7 +6,7 @@ import logging
 import re
 import uuid
 from contextvars import ContextVar
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
@@ -15,7 +15,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -24,8 +24,10 @@ from analysis_agent.auth import (
     create_refresh_token,
     decode_token,
     generate_api_key,
+    generate_reset_token,
     hash_api_key,
     hash_password,
+    hash_reset_token,
     verify_password,
 )
 from analysis_agent.config import get_settings
@@ -37,26 +39,31 @@ from analysis_agent.models import (
     Base,
     JobStatus,
     NotificationSettings,
+    PasswordResetToken,
     ReportStatus,
     User,
 )
+from analysis_agent.notifier import send_password_reset_email
 from analysis_agent.schemas import (
     AnalysisJobCreate,
     ApiKeyCreateRequest,
     ApiKeyCreatedResponse,
     ApiKeyResponse,
     DeviceHealthView,
+    ForgotPasswordRequest,
     IncidentView,
     IngestPayload,
     IngestResponse,
     JobCreatedResponse,
     JobStatusResponse,
     LoginRequest,
+    MessageResponse,
     NotificationSettingsRequest,
     NotificationSettingsResponse,
     ProposedFixView,
     RefreshRequest,
     RegisterRequest,
+    ResetPasswordRequest,
     ServiceSummary,
     SummaryResponse,
     TailscaleDeviceRaw,
@@ -270,6 +277,58 @@ async def refresh_token(body: RefreshRequest, db: AsyncSession = Depends(get_db)
     )
 
 
+_RESET_TOKEN_EXPIRE_MINUTES = 60
+_GENERIC_RESET_MESSAGE = "If an account exists for that email, a password reset link has been sent."
+
+
+@app.post("/auth/forgot-password", response_model=MessageResponse)
+async def forgot_password(body: ForgotPasswordRequest, db: AsyncSession = Depends(get_db), _rl: None = Depends(check_auth_rate_limit)) -> MessageResponse:
+    # Always return the same message whether or not the email is registered,
+    # so this endpoint can't be used to enumerate accounts.
+    result = await db.execute(select(User).where(User.email == body.email))
+    user = result.scalar_one_or_none()
+    if user is None:
+        return MessageResponse(message=_GENERIC_RESET_MESSAGE)
+
+    await db.execute(delete(PasswordResetToken).where(PasswordResetToken.user_id == user.id))
+
+    raw_token, token_hash = generate_reset_token()
+    db.add(PasswordResetToken(
+        user_id=user.id,
+        token_hash=token_hash,
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=_RESET_TOKEN_EXPIRE_MINUTES),
+    ))
+    await db.commit()
+
+    reset_url = f"{settings.app_url.rstrip('/')}/?reset_token={raw_token}"
+    await send_password_reset_email(user.email, reset_url)
+
+    return MessageResponse(message=_GENERIC_RESET_MESSAGE)
+
+
+@app.post("/auth/reset-password", response_model=TokenResponse)
+async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(get_db), _rl: None = Depends(check_auth_rate_limit)) -> TokenResponse:
+    token_hash = hash_reset_token(body.token)
+    result = await db.execute(select(PasswordResetToken).where(PasswordResetToken.token_hash == token_hash))
+    reset = result.scalar_one_or_none()
+    if reset is None or reset.used or reset.expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Invalid or expired reset link")
+
+    result = await db.execute(select(User).where(User.id == reset.user_id))
+    user = result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset link")
+
+    user.hashed_password = hash_password(body.new_password)
+    reset.used = True
+    await db.commit()
+
+    return TokenResponse(
+        access_token=create_access_token(str(user.id)),
+        refresh_token=create_refresh_token(str(user.id)),
+    )
+
+
 @app.get("/auth/me", response_model=UserResponse)
 async def me(current_user: User = Depends(get_current_user)) -> UserResponse:
     return UserResponse(id=current_user.id, email=current_user.email, created_at=current_user.created_at)
@@ -326,6 +385,7 @@ async def get_notifications(current_user: User = Depends(get_current_user), db: 
         return NotificationSettingsResponse(
             email_enabled=False, discord_enabled=False, discord_webhook_url=None,
             slack_enabled=False, slack_webhook_url=None,
+            ntfy_enabled=False, ntfy_topic=None,
         )
     return NotificationSettingsResponse(
         email_enabled=notif.email_enabled,
@@ -333,6 +393,8 @@ async def get_notifications(current_user: User = Depends(get_current_user), db: 
         discord_webhook_url=notif.discord_webhook_url,
         slack_enabled=notif.slack_enabled,
         slack_webhook_url=notif.slack_webhook_url,
+        ntfy_enabled=notif.ntfy_enabled,
+        ntfy_topic=notif.ntfy_topic,
     )
 
 
@@ -353,6 +415,8 @@ async def update_notifications(
     notif.discord_webhook_url = body.discord_webhook_url
     notif.slack_enabled = body.slack_enabled
     notif.slack_webhook_url = body.slack_webhook_url
+    notif.ntfy_enabled = body.ntfy_enabled
+    notif.ntfy_topic = body.ntfy_topic
     await db.commit()
 
     return NotificationSettingsResponse(
@@ -361,7 +425,24 @@ async def update_notifications(
         discord_webhook_url=notif.discord_webhook_url,
         slack_enabled=notif.slack_enabled,
         slack_webhook_url=notif.slack_webhook_url,
+        ntfy_enabled=notif.ntfy_enabled,
+        ntfy_topic=notif.ntfy_topic,
     )
+
+
+@app.post("/api/v1/notifications/test", response_model=MessageResponse)
+async def test_notifications(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)) -> MessageResponse:
+    result = await db.execute(select(NotificationSettings).where(NotificationSettings.user_id == current_user.id))
+    notif = result.scalar_one_or_none()
+    if notif is None:
+        raise HTTPException(status_code=400, detail="Save your notification settings first")
+
+    from analysis_agent.notifier import send_test_notification
+    sent = await send_test_notification(notif, current_user.email)
+    if not sent:
+        raise HTTPException(status_code=400, detail="No notification channels are enabled")
+
+    return MessageResponse(message=f"Test notification sent via: {', '.join(sent)}")
 
 
 # ---------------------------------------------------------------------------
@@ -488,7 +569,7 @@ async def create_job(
         existing = await db.execute(select(AnalysisJob).where(AnalysisJob.idempotency_key == normalized.idempotency_key))
         existing_job = existing.scalar_one_or_none()
         if existing_job:
-            return JobCreatedResponse(job_id=existing_job.id, status=existing_job.status.value)
+            return JobCreatedResponse(job_id=existing_job.id, status=existing_job.status)
 
     job = AnalysisJob(
         user_id=current_user.id,
@@ -501,7 +582,7 @@ async def create_job(
     db.add(job)
     await db.commit()
     await db.refresh(job)
-    return JobCreatedResponse(job_id=job.id, status=job.status.value)
+    return JobCreatedResponse(job_id=job.id, status=job.status)
 
 
 async def _fetch_incident_views(
@@ -660,7 +741,7 @@ async def get_job(
 
     return JobStatusResponse(
         job_id=job.id,
-        status=job.status.value,
+        status=job.status,
         progress=job.progress,
         error=job.error,
         created_at=job.created_at,

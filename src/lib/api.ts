@@ -61,13 +61,23 @@ async function apiFetch(path: string, init: RequestInit = {}, retry = true): Pro
 }
 
 // Auth
+function extractErrorMessage(body: unknown, fallback: string): string {
+  const detail = (body as { detail?: unknown } | null)?.detail;
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    const msgs = detail.map((d) => (typeof d === 'string' ? d : d?.msg)).filter(Boolean);
+    if (msgs.length) return msgs.join('; ');
+  }
+  return fallback;
+}
+
 export async function login(email: string, password: string) {
   const res = await fetch(`${BASE}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
-  if (!res.ok) throw new Error((await res.json()).detail ?? 'Login failed');
+  if (!res.ok) throw new Error(extractErrorMessage(await res.json(), 'Login failed'));
   const data = await res.json();
   setTokens(data.access_token, data.refresh_token);
   return data;
@@ -79,7 +89,29 @@ export async function register(email: string, password: string) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
-  if (!res.ok) throw new Error((await res.json()).detail ?? 'Registration failed');
+  if (!res.ok) throw new Error(extractErrorMessage(await res.json(), 'Registration failed'));
+  const data = await res.json();
+  setTokens(data.access_token, data.refresh_token);
+  return data;
+}
+
+export async function forgotPassword(email: string) {
+  const res = await fetch(`${BASE}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) throw new Error(extractErrorMessage(await res.json(), 'Request failed'));
+  return res.json() as Promise<{ message: string }>;
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+  const res = await fetch(`${BASE}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, new_password: newPassword }),
+  });
+  if (!res.ok) throw new Error(extractErrorMessage(await res.json(), 'Reset failed'));
   const data = await res.json();
   setTokens(data.access_token, data.refresh_token);
   return data;
@@ -148,10 +180,19 @@ export async function updateNotificationSettings(settings: {
   discord_webhook_url: string | null;
   slack_enabled: boolean;
   slack_webhook_url: string | null;
+  ntfy_enabled: boolean;
+  ntfy_topic: string | null;
 }) {
   const res = await apiFetch('/api/v1/notifications', { method: 'PUT', body: JSON.stringify(settings) });
   if (!res.ok) throw new Error('Failed to update notification settings');
   return res.json();
+}
+
+export async function testNotifications() {
+  const res = await apiFetch('/api/v1/notifications/test', { method: 'POST' });
+  const data = await res.json();
+  if (!res.ok) throw new Error(extractErrorMessage(data, 'Failed to send test notification'));
+  return data as { message: string };
 }
 
 // WebSocket

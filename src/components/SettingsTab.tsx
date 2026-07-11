@@ -6,6 +6,7 @@ import {
   deleteApiKey,
   fetchNotificationSettings,
   updateNotificationSettings,
+  testNotifications,
 } from '../lib/api';
 
 interface ApiKey {
@@ -21,6 +22,8 @@ interface NotifSettings {
   discord_webhook_url: string | null;
   slack_enabled: boolean;
   slack_webhook_url: string | null;
+  ntfy_enabled: boolean;
+  ntfy_topic: string | null;
 }
 
 interface SettingsTabProps {
@@ -41,9 +44,13 @@ const SettingsTab = ({ userEmail, appUrl }: SettingsTabProps) => {
     discord_webhook_url: null,
     slack_enabled: false,
     slack_webhook_url: null,
+    ntfy_enabled: false,
+    ntfy_topic: null,
   });
   const [notifSaving, setNotifSaving] = useState(false);
   const [notifSaved, setNotifSaved] = useState(false);
+  const [testSending, setTestSending] = useState(false);
+  const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
 
   useEffect(() => {
     fetchApiKeys().then(setKeys).catch(console.error);
@@ -96,6 +103,20 @@ const SettingsTab = ({ userEmail, appUrl }: SettingsTabProps) => {
       console.error(e);
     } finally {
       setNotifSaving(false);
+    }
+  };
+
+  const handleTestNotification = async () => {
+    setTestSending(true);
+    setTestResult(null);
+    try {
+      const data = await testNotifications();
+      setTestResult({ ok: true, message: data.message });
+    } catch (e) {
+      setTestResult({ ok: false, message: e instanceof Error ? e.message : 'Failed to send test notification' });
+    } finally {
+      setTestSending(false);
+      setTimeout(() => setTestResult(null), 5000);
     }
   };
 
@@ -241,11 +262,44 @@ const SettingsTab = ({ userEmail, appUrl }: SettingsTabProps) => {
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid var(--borderColor)' }}>
-          <button className="btn btn-primary" onClick={handleSaveNotifications} disabled={notifSaving}>
-            {notifSaving ? 'Saving...' : 'Save'}
-          </button>
-          {notifSaved && <span style={{ fontSize: '0.8125rem', color: 'var(--status-online)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Check size={14} /> Saved</span>}
+        {/* ntfy */}
+        <div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', cursor: 'pointer', marginBottom: '0.5rem' }}>
+            <input type="checkbox" checked={notif.ntfy_enabled} onChange={(e) => setNotif((p) => ({ ...p, ntfy_enabled: e.target.checked }))} />
+            <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>ntfy.sh</span>
+          </label>
+          {notif.ntfy_enabled && (
+            <div style={{ marginLeft: '1.375rem' }}>
+              <label style={labelStyle}>Topic</label>
+              <input
+                className="ts-input"
+                placeholder="my-secret-tsrx-topic"
+                value={notif.ntfy_topic ?? ''}
+                onChange={(e) => setNotif((p) => ({ ...p, ntfy_topic: e.target.value || null }))}
+              />
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.375rem' }}>
+                Subscribe at ntfy.sh/{notif.ntfy_topic || '<topic>'} or in the ntfy app. Anyone who knows the topic name can read it, so pick something hard to guess.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', paddingTop: '0.5rem', borderTop: '1px solid var(--borderColor)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <button className="btn btn-primary" onClick={handleSaveNotifications} disabled={notifSaving}>
+              {notifSaving ? 'Saving...' : 'Save'}
+            </button>
+            <button className="btn btn-secondary" onClick={handleTestNotification} disabled={testSending}>
+              {testSending ? 'Sending...' : 'Send test notification'}
+            </button>
+            {notifSaved && <span style={{ fontSize: '0.8125rem', color: 'var(--status-online)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Check size={14} /> Saved</span>}
+          </div>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Save your settings before sending a test — the test uses whatever is currently saved, not unsaved edits above.</p>
+          {testResult && (
+            <span style={{ fontSize: '0.8125rem', color: testResult.ok ? 'var(--status-online)' : 'var(--status-issue)' }}>
+              {testResult.message}
+            </span>
+          )}
         </div>
       </div>
     </div>

@@ -41,6 +41,9 @@ class Settings(BaseSettings):
     smtp_pass: str = ""
     smtp_from: str = "noreply@tsrx.app"
 
+    # ntfy.sh notifications (optional) — override for a self-hosted ntfy server
+    ntfy_base_url: str = "https://ntfy.sh"
+
     # App URL for notification links and CORS allow-list
     app_url: str = "http://localhost:5173"
     # Extra CORS origins beyond app_url (comma-separated, e.g. "https://tailscale.com")

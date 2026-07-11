@@ -54,3 +54,13 @@ def generate_api_key() -> tuple[str, str]:
 
 def hash_api_key(plaintext: str) -> str:
     return hashlib.sha256(plaintext.encode()).hexdigest()
+
+
+def hash_reset_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
+
+
+def generate_reset_token() -> tuple[str, str]:
+    """Returns (plaintext_token, hashed_token). Plaintext is embedded in the reset link and never stored."""
+    raw = secrets.token_urlsafe(32)
+    return raw, hash_reset_token(raw)
