@@ -3,8 +3,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from types import SimpleNamespace
 
-from analysis_agent.analyzer import Analyzer
 from analysis_agent.schemas import AnalysisJobCreate, UptimeStatus
+from analysis_agent.specialist import ServiceSpecialist
 
 
 def _payload() -> AnalysisJobCreate:
@@ -18,10 +18,10 @@ def _payload() -> AnalysisJobCreate:
     )
 
 
-def _analyzer() -> Analyzer:
-    analyzer = Analyzer.__new__(Analyzer)
-    analyzer.settings = SimpleNamespace(gemini_model="gemini-2.5-flash")
-    return analyzer
+def _analyzer() -> ServiceSpecialist:
+    specialist = ServiceSpecialist.__new__(ServiceSpecialist)
+    specialist.settings = SimpleNamespace(gemini_model="gemini-2.5-flash")
+    return specialist
 
 
 def test_normalize_model_output_accepts_markdown_first_shape() -> None:

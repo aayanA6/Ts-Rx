@@ -29,6 +29,12 @@ class Settings(BaseSettings):
     allowed_read_roots: str = "src,services,config"
     project_root: Path = Field(default_factory=Path.cwd)
 
+    # Per-service agent knowledge bases (markdown files the orchestrator
+    # appends incident history to, and hands to each service's specialist
+    # agent as prompt context)
+    service_kb_dir: str = "data/service_kb"
+    service_kb_max_chars: int = 12000
+
     # Auth
     jwt_secret: str = "change-me-in-production-use-a-long-random-string"
     access_token_expire_minutes: int = 15

@@ -11,9 +11,10 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from analysis_agent.database import engine as _db_engine
 
-from analysis_agent.analyzer import Analyzer, confidence_from_report
 from analysis_agent.models import AnalysisJob, AnalysisReport, JobStatus, ReportStatus
+from analysis_agent.orchestrator import Orchestrator
 from analysis_agent.schemas import AnalysisJobCreate
+from analysis_agent.specialist import confidence_from_report
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,7 @@ class AnalysisWorker:
         self._session_maker = session_maker
         self._poll_interval_sec = poll_interval_sec
         self._stop_event = asyncio.Event()
-        self._analyzer = Analyzer()
+        self._orchestrator = Orchestrator()
 
     async def run(self) -> None:
         while not self._stop_event.is_set():
@@ -97,7 +98,7 @@ class AnalysisWorker:
 
             try:
                 payload = AnalysisJobCreate.model_validate(job.request_payload)
-                report = await self._analyzer.analyze(payload)
+                report = await self._orchestrator.analyze(payload)
 
                 existing_report_result = await session.execute(select(AnalysisReport).where(AnalysisReport.job_id == job.id))
                 db_report = existing_report_result.scalar_one_or_none()

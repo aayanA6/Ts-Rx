@@ -4,12 +4,9 @@ import math
 import re
 from typing import Any
 
-from pydantic import ValidationError
-
+from analysis_agent import service_kb
 from analysis_agent.config import get_settings
-from analysis_agent.fallback import build_fallback_report
-from analysis_agent.gemini_client import GeminiClient, GeminiClientError
-from analysis_agent.retriever import SelectiveCodeRetriever
+from analysis_agent.gemini_client import GeminiClient
 from analysis_agent.schemas import (
     AnalysisJobCreate,
     AnalysisReport,
@@ -21,41 +18,24 @@ from analysis_agent.schemas import (
 )
 
 
-class Analyzer:
-    def __init__(self) -> None:
+class ServiceSpecialist:
+    """A Gemini-backed agent specialized to one service, carrying that
+    service's accumulated markdown knowledge base into every prompt."""
+
+    def __init__(self, service_name: str) -> None:
+        self.service_name = service_name
         self.settings = get_settings()
-        self.retriever = SelectiveCodeRetriever()
         self.gemini = GeminiClient()
 
-    async def analyze(self, payload: AnalysisJobCreate) -> AnalysisReport:
-        normalized_payload, evidence = self._normalize_logs(payload)
-        code_context = self.retriever.retrieve(normalized_payload)
-        prompt = self._build_prompt(normalized_payload, evidence, code_context)
-
-        try:
-            model_output, model_meta = await self.gemini.generate_report(prompt)
-            report = self._normalize_model_output(normalized_payload, evidence, code_context, model_output, model_meta)
-            return report
-        except (GeminiClientError, ValidationError, ValueError) as exc:
-            return build_fallback_report(normalized_payload, evidence, code_context, reason=str(exc))
-
-    def _normalize_logs(self, payload: AnalysisJobCreate) -> tuple[AnalysisJobCreate, list[EvidenceItem]]:
-        trimmed = payload.model_copy(deep=True)
-        trimmed.log_snippets = trimmed.log_snippets[: self.settings.max_log_snippets]
-
-        evidence: list[EvidenceItem] = []
-        for snippet in trimmed.log_snippets:
-            line = snippet.line[: self.settings.max_log_line_chars]
-            evidence.append(
-                EvidenceItem(
-                    type="log_snippet",
-                    source=snippet.source,
-                    snippet=line,
-                    timestamp=snippet.timestamp,
-                )
-            )
-
-        return trimmed, evidence
+    async def diagnose(
+        self,
+        payload: AnalysisJobCreate,
+        evidence: list[EvidenceItem],
+        code_context: list[CodeContextItem],
+    ) -> AnalysisReport:
+        prompt = self._build_prompt(payload, evidence, code_context)
+        model_output, model_meta = await self.gemini.generate_report(prompt)
+        return self._normalize_model_output(payload, evidence, code_context, model_output, model_meta)
 
     def _build_prompt(
         self,
@@ -63,7 +43,15 @@ class Analyzer:
         evidence: list[EvidenceItem],
         code_context: list[CodeContextItem],
     ) -> str:
-        return (
+        kb_text = service_kb.read_kb(self.service_name)
+        persona = (
+            f"You are the dedicated on-call specialist agent for the service `{self.service_name}`. "
+            "You maintain a running knowledge base of past incidents on this exact service, shown below. "
+            "Cross-reference it: call out in `## Other Important Info` if this incident matches a known "
+            "pattern, and prefer remediation steps that have worked before over generic advice.\n\n"
+            f"--- {self.service_name} KNOWLEDGE BASE ---\n{kb_text}\n--- END KNOWLEDGE BASE ---\n\n"
+        )
+        return persona + (
             "You are a production incident triage assistant. Return only JSON with keys: "
             "incident_id,status,summary_markdown,summary_text,fallback_reason. "
             "status must be completed.\n\n"

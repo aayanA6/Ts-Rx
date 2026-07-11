@@ -1,0 +1,635 @@
+<title>TS-RX — Agentic Specialists, Live Run</title>
+<style>
+  :root {
+    --paper: #eef1f6;
+    --panel: #ffffff;
+    --panel-2: #f5f7fb;
+    --ink: #131926;
+    --ink-dim: #57607a;
+    --border: rgba(19,25,38,0.12);
+    --border-strong: rgba(19,25,38,0.22);
+    --accent: #c8721f;
+    --accent-soft: #f3e2cd;
+    --specialist: #157f76;
+    --specialist-soft: #d8f0ec;
+    --good: #2f8f52;
+    --good-soft: #e0f2e4;
+    --bad: #c1503f;
+    --bad-soft: #f8e3df;
+    --mono: ui-monospace, "JetBrains Mono", "Fira Code", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0b0f1a;
+      --panel: #121826;
+      --panel-2: #182036;
+      --ink: #e3e8f2;
+      --ink-dim: #9aa3bd;
+      --border: rgba(227,232,242,0.12);
+      --border-strong: rgba(227,232,242,0.22);
+      --accent: #e2903f;
+      --accent-soft: rgba(226,144,63,0.16);
+      --specialist: #45c2b6;
+      --specialist-soft: rgba(69,194,182,0.14);
+      --good: #57c17c;
+      --good-soft: rgba(87,193,124,0.14);
+      --bad: #e0776a;
+      --bad-soft: rgba(224,119,106,0.14);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0b0f1a;
+    --panel: #121826;
+    --panel-2: #182036;
+    --ink: #e3e8f2;
+    --ink-dim: #9aa3bd;
+    --border: rgba(227,232,242,0.12);
+    --border-strong: rgba(227,232,242,0.22);
+    --accent: #e2903f;
+    --accent-soft: rgba(226,144,63,0.16);
+    --specialist: #45c2b6;
+    --specialist-soft: rgba(69,194,182,0.14);
+    --good: #57c17c;
+    --good-soft: rgba(87,193,124,0.14);
+    --bad: #e0776a;
+    --bad-soft: rgba(224,119,106,0.14);
+  }
+  :root[data-theme="light"] {
+    --paper: #eef1f6;
+    --panel: #ffffff;
+    --panel-2: #f5f7fb;
+    --ink: #131926;
+    --ink-dim: #57607a;
+    --border: rgba(19,25,38,0.12);
+    --border-strong: rgba(19,25,38,0.22);
+    --accent: #c8721f;
+    --accent-soft: #f3e2cd;
+    --specialist: #157f76;
+    --specialist-soft: #d8f0ec;
+    --good: #2f8f52;
+    --good-soft: #e0f2e4;
+    --bad: #c1503f;
+    --bad-soft: #f8e3df;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  a { color: inherit; }
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  /* ---------- header ---------- */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  h1 {
+    font-family: var(--mono);
+    font-size: clamp(26px, 4vw, 36px);
+    font-weight: 700;
+    margin: 10px 0 12px;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+  .lede {
+    max-width: 62ch;
+    color: var(--ink-dim);
+    font-size: 16px;
+  }
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .stat {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 7px;
+    padding: 7px 11px;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    color: var(--ink-dim);
+  }
+  .stat b {
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* ---------- section shell ---------- */
+  section h2 {
+    font-family: var(--mono);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-dim);
+    margin: 0 0 4px;
+  }
+  section .section-sub {
+    font-size: 13.5px;
+    color: var(--ink-dim);
+    margin: 0 0 18px;
+    max-width: 68ch;
+  }
+
+  /* ---------- architecture diagram ---------- */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .flow-node {
+    flex: 0 0 auto;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    min-width: 148px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+  }
+  .flow-node .k {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-dim);
+  }
+  .flow-node .v {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .flow-node.orchestrator { border-color: var(--accent); background: var(--accent-soft); }
+  .flow-node.orchestrator .v { color: var(--accent); }
+  .flow-node.kb { border-color: var(--border-strong); }
+  .flow-arrow {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    color: var(--ink-dim);
+    font-family: var(--mono);
+    font-size: 15px;
+  }
+  .flow-specialists {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 0 0 auto;
+    justify-content: center;
+  }
+  .flow-specialists .flow-node {
+    min-width: 172px;
+    border-color: var(--specialist);
+    background: var(--specialist-soft);
+    padding: 8px 14px;
+  }
+  .flow-specialists .flow-node .v { color: var(--specialist); font-size: 12.5px; }
+
+  /* ---------- timeline ---------- */
+  .timeline { display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .card-head::-webkit-details-marker { display: none; }
+  .card-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .step-no {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-dim);
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 7px;
+    flex: 0 0 auto;
+  }
+  .card-title { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
+  .card-title .svc {
+    font-weight: 700;
+    font-size: 14.5px;
+  }
+  .card-title .meta {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-dim);
+  }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; flex: 0 0 auto; }
+  .pill {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .pill.good { background: var(--good-soft); color: var(--good); }
+  .pill.bad { background: var(--bad-soft); color: var(--bad); }
+  .pill.specialist { background: var(--specialist-soft); color: var(--specialist); }
+  .chev {
+    font-family: var(--mono);
+    color: var(--ink-dim);
+    transition: transform 0.15s ease;
+    flex: 0 0 auto;
+  }
+  details[open] .chev { transform: rotate(90deg); }
+  @media (prefers-reduced-motion: reduce) {
+    .chev { transition: none; }
+  }
+
+  .card-body {
+    padding: 0 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .signal {
+    font-size: 13.5px;
+    color: var(--ink);
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 13px;
+  }
+  .signal .k { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-dim); display: block; margin-bottom: 4px; }
+  .fallback-note {
+    font-size: 13px;
+    color: var(--bad);
+    background: var(--bad-soft);
+    border: 1px solid var(--bad);
+    border-radius: 8px;
+    padding: 10px 13px;
+    font-family: var(--mono);
+  }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+  .block-label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-dim);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  pre.code {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+    color: var(--ink);
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  pre.code mark {
+    background: var(--specialist-soft);
+    color: var(--specialist);
+    border-radius: 3px;
+    padding: 0 2px;
+    font-weight: 700;
+  }
+  .report-md h4 { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin: 12px 0 4px; }
+  .report-md h4:first-child { margin-top: 0; }
+  .report-md ul { margin: 0 0 4px; padding-left: 18px; font-size: 13.5px; }
+  .report-md li { margin-bottom: 3px; }
+
+  /* ---------- KB viewer ---------- */
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  input[name="kbtab"] { position: absolute; opacity: 0; pointer-events: none; }
+  .tabs label {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 7px 13px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--ink-dim);
+    cursor: pointer;
+  }
+  #tab-plex:focus-visible ~ .tabs label[for="tab-plex"],
+  #tab-pg:focus-visible ~ .tabs label[for="tab-pg"],
+  #tab-ha:focus-visible ~ .tabs label[for="tab-ha"] {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  #tab-plex:checked ~ .tabs label[for="tab-plex"],
+  #tab-pg:checked ~ .tabs label[for="tab-pg"],
+  #tab-ha:checked ~ .tabs label[for="tab-ha"] {
+    background: var(--specialist);
+    border-color: var(--specialist);
+    color: var(--panel);
+  }
+  .kb-panel { display: none; }
+  #tab-plex:checked ~ .kb-panels #panel-plex,
+  #tab-pg:checked ~ .kb-panels #panel-pg,
+  #tab-ha:checked ~ .kb-panels #panel-ha {
+    display: block;
+  }
+  .kb-file {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .kb-file-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 14px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-dim);
+  }
+  .kb-file pre.code { border: none; border-radius: 0; max-height: 340px; margin: 0; }
+
+  footer {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-dim);
+    border-top: 1px solid var(--border);
+    padding-top: 18px;
+  }
+  footer code { background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Agentic incident response &middot; live orchestrator run</div>
+    <h1>Every service gets its own specialist &mdash; and its own memory.</h1>
+    <p class="lede">
+      This is a real run of <code>analysis_agent/orchestrator.py</code> on branch
+      <code>feat/agentic-service-specialists</code>: four incidents across three services,
+      routed through the orchestrator, diagnosed by per-service specialist agents, and logged
+      to each service's own knowledge base for next time.
+    </p>
+    <div class="stat-row">
+      <div class="stat">Incidents <b>4</b></div>
+      <div class="stat">Services <b>3</b></div>
+      <div class="stat">Specialists deployed <b>3</b></div>
+      <div class="stat">Fallbacks <b>1</b></div>
+      <div class="stat">Recurrence caught <b>1</b></div>
+    </div>
+  </header>
+
+  <section aria-labelledby="arch-h">
+    <h2 id="arch-h">How a report gets made</h2>
+    <p class="section-sub">The orchestrator watches every incoming incident, regardless of service, and deploys (or reuses) a specialist scoped to that one service.</p>
+    <div class="flow">
+      <div class="flow-node"><span class="k">Webhook</span><span class="v">Incident in</span></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node orchestrator"><span class="k">Main agent</span><span class="v">Orchestrator</span></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-specialists">
+        <div class="flow-node"><span class="k">Deployed</span><span class="v">Plex specialist</span></div>
+        <div class="flow-node"><span class="k">Deployed</span><span class="v">PostgreSQL specialist</span></div>
+        <div class="flow-node"><span class="k">Deployed</span><span class="v">Home Assistant specialist</span></div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node"><span class="k">Prompt + KB</span><span class="v">Gemini call</span></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node kb"><span class="k">Persisted</span><span class="v">Service&nbsp;KB.md</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="tl-h">
+    <h2 id="tl-h">Run timeline</h2>
+    <p class="section-sub">Expand any incident to see the exact prompt the specialist sent to Gemini &mdash; including its knowledge-base block &mdash; and the diagnosis it produced.</p>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <section aria-labelledby="kb-h">
+    <h2 id="kb-h">Knowledge bases after this run</h2>
+    <p class="section-sub">One markdown file per service, gitignored under <code>data/service_kb/</code>. This is what each specialist reads before every future diagnosis.</p>
+
+    <input type="radio" name="kbtab" id="tab-plex" checked>
+    <input type="radio" name="kbtab" id="tab-pg">
+    <input type="radio" name="kbtab" id="tab-ha">
+    <div class="tabs">
+      <label for="tab-plex">plex-media-server.md</label>
+      <label for="tab-pg">postgresql.md</label>
+      <label for="tab-ha">home-assistant.md</label>
+    </div>
+    <div class="kb-panels">
+      <div class="kb-panel" id="panel-plex">
+        <div class="kb-file">
+          <div class="kb-file-bar"><span>data/service_kb/plex-media-server.md</span><span>2 incidents logged</span></div>
+          <pre class="code" id="kb-plex"></pre>
+        </div>
+      </div>
+      <div class="kb-panel" id="panel-pg">
+        <div class="kb-file">
+          <div class="kb-file-bar"><span>data/service_kb/postgresql.md</span><span>1 incident logged</span></div>
+          <pre class="code" id="kb-pg"></pre>
+        </div>
+      </div>
+      <div class="kb-panel" id="panel-ha">
+        <div class="kb-file">
+          <div class="kb-file-bar"><span>data/service_kb/home-assistant.md</span><span>1 incident logged</span></div>
+          <pre class="code" id="kb-ha"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Captured from a live run of the orchestrator/specialist code with Gemini responses mocked for reproducibility &mdash;
+    everything else (prompt building, KB read/append/trim, fallback handling, specialist caching) executed for real.
+    See <code>analysis_agent/orchestrator.py</code>, <code>analysis_agent/specialist.py</code>, <code>analysis_agent/service_kb.py</code>.
+  </footer>
+
+</div>
+
+<script>
+  const DATA = {"timeline": [
+    {
+      "step": 1, "service": "Plex Media Server", "node": "homelab-01", "incident_id": "inc-2201",
+      "detected_at": "2026-07-11T14:00:00+00:00", "status_in": "down",
+      "description": "connection refused on port 32400", "mode": "gemini", "specialist_reused": false,
+      "report_status": "completed", "fallback_reason": null,
+      "summary_text": "## Investigation Steps\n- Checked Plex process status and port binding on homelab-01.\n\n## Problems Found\n- Plex Media Server process exited after the last auto-update; port 32400 is no longer listening.\n\n## Other Important Info\n- No prior incident history found for this service yet.\n\n## Solution Suggestions\n- Restart the Plex service and check the update log for a crash on startup.",
+      "prompt_kb_block": "You are the dedicated on-call specialist agent for the service `Plex Media Server`. You maintain a running knowledge base of past incidents on this exact service, shown below. Cross-reference it: call out in `## Other Important Info` if this incident matches a known pattern, and prefer remediation steps that have worked before over generic advice.\n\n--- Plex Media Server KNOWLEDGE BASE ---\n# Service Knowledge Base: Plex Media Server\n\nAccumulated incident history for this service. Auto-maintained by the orchestrator agent.\n\n_No incidents recorded yet._\n\n--- END KNOWLEDGE BASE ---",
+      "kb_file_after": "# Service Knowledge Base: Plex Media Server\n\nAccumulated incident history for this service. Auto-maintained by the orchestrator agent.\n\n## Incident 2026-07-11T14:00:00+00:00 — inc-2201 (completed)\n- Node: homelab-01\n- Problems found:\n  - Plex Media Server process exited after the last auto-update; port 32400 is no longer listening.\n- Suggested actions:\n  - Restart the Plex service and check the update log for a crash on startup.\n"
+    },
+    {
+      "step": 2, "service": "PostgreSQL", "node": "homelab-02", "incident_id": "inc-2202",
+      "detected_at": "2026-07-11T17:00:00+00:00", "status_in": "down",
+      "description": "FATAL: remaining connection slots reserved, too many clients already", "mode": "fail", "specialist_reused": false,
+      "report_status": "fallback", "fallback_reason": "Gemini request failed for models [gemini-2.5-flash, gemini-2.0-flash]: 503 Service Unavailable",
+      "summary_text": "## Investigation Steps\n- Automated model diagnosis is unavailable for **PostgreSQL** in this run.\n- Built this report from deterministic fallback heuristics and available evidence.\n\n## Problems Found\n- Insufficient evidence for high-confidence diagnosis; investigate recent deploy/config/network changes. (20% confidence)\n\n## Other Important Info\n- No additional log highlights were available in the request payload.\n\n## Solution Suggestions\n- Use the execution plan below to validate or rule out these hypotheses.",
+      "prompt_kb_block": "You are the dedicated on-call specialist agent for the service `PostgreSQL`. You maintain a running knowledge base of past incidents on this exact service, shown below. Cross-reference it: call out in `## Other Important Info` if this incident matches a known pattern, and prefer remediation steps that have worked before over generic advice.\n\n--- PostgreSQL KNOWLEDGE BASE ---\n# Service Knowledge Base: PostgreSQL\n\nAccumulated incident history for this service. Auto-maintained by the orchestrator agent.\n\n_No incidents recorded yet._\n\n--- END KNOWLEDGE BASE ---",
+      "kb_file_after": "# Service Knowledge Base: PostgreSQL\n\nAccumulated incident history for this service. Auto-maintained by the orchestrator agent.\n\n## Incident 2026-07-11T17:00:00+00:00 — inc-2202 (fallback)\n- Node: homelab-02\n- Problems found:\n  - Insufficient evidence for high-confidence diagnosis; investigate recent deploy/config/network changes. (20% confidence)\n- Suggested actions:\n  - Use the execution plan below to validate or rule out these hypotheses.\n- Fallback reason: Gemini request failed for models [gemini-2.5-flash, gemini-2.0-flash]: 503 Service Unavailable\n"
+    },
+    {
+      "step": 3, "service": "Home Assistant", "node": "homelab-03", "incident_id": "inc-2203",
+      "detected_at": "2026-07-11T20:00:00+00:00", "status_in": "degraded",
+      "description": "response time > 5s on /api/states", "mode": "gemini", "specialist_reused": false,
+      "report_status": "completed", "fallback_reason": null,
+      "summary_text": "## Investigation Steps\n- Sampled /api/states latency and checked integration logs.\n\n## Problems Found\n- A slow Zigbee integration poll loop is blocking the event loop, degrading API latency.\n\n## Other Important Info\n- No prior incident history found for this service yet.\n\n## Solution Suggestions\n- Restart the Zigbee integration and check for a stuck device poll.",
+      "prompt_kb_block": "You are the dedicated on-call specialist agent for the service `Home Assistant`. You maintain a running knowledge base of past incidents on this exact service, shown below. Cross-reference it: call out in `## Other Important Info` if this incident matches a known pattern, and prefer remediation steps that have worked before over generic advice.\n\n--- Home Assistant KNOWLEDGE BASE ---\n# Service Knowledge Base: Home Assistant\n\nAccumulated incident history for this service. Auto-maintained by the orchestrator agent.\n\n_No incidents recorded yet._\n\n--- END KNOWLEDGE BASE ---",
+      "kb_file_after": "# Service Knowledge Base: Home Assistant\n\nAccumulated incident history for this service. Auto-maintained by the orchestrator agent.\n\n## Incident 2026-07-11T20:00:00+00:00 — inc-2203 (completed)\n- Node: homelab-03\n- Problems found:\n  - A slow Zigbee integration poll loop is blocking the event loop, degrading API latency.\n- Suggested actions:\n  - Restart the Zigbee integration and check for a stuck device poll.\n"
+    },
+    {
+      "step": 4, "service": "Plex Media Server", "node": "homelab-01", "incident_id": "inc-2214",
+      "detected_at": "2026-07-11T23:00:00+00:00", "status_in": "down",
+      "description": "connection refused on port 32400", "mode": "gemini", "specialist_reused": true,
+      "report_status": "completed", "fallback_reason": null,
+      "summary_text": "## Investigation Steps\n- Checked Plex process status; compared against this service's known incident history.\n\n## Problems Found\n- Same failure signature as inc-2201: Plex process exited again, port 32400 not listening.\n\n## Other Important Info\n- This matches a recurring pattern already logged in this service's knowledge base (inc-2201) — likely the auto-update crash-on-startup bug recurring.\n\n## Solution Suggestions\n- Apply the same fix as last time: restart Plex and check the update log. Recommend disabling Plex auto-update until the crash is root-caused.",
+      "prompt_kb_block": "You are the dedicated on-call specialist agent for the service `Plex Media Server`. You maintain a running knowledge base of past incidents on this exact service, shown below. Cross-reference it: call out in `## Other Important Info` if this incident matches a known pattern, and prefer remediation steps that have worked before over generic advice.\n\n--- Plex Media Server KNOWLEDGE BASE ---\n# Service Knowledge Base: Plex Media Server\n\nAccumulated incident history for this service. Auto-maintained by the orchestrator agent.\n\n## Incident 2026-07-11T14:00:00+00:00 — inc-2201 (completed)\n- Node: homelab-01\n- Problems found:\n  - Plex Media Server process exited after the last auto-update; port 32400 is no longer listening.\n- Suggested actions:\n  - Restart the Plex service and check the update log for a crash on startup.\n\n--- END KNOWLEDGE BASE ---",
+      "kb_file_after": "# Service Knowledge Base: Plex Media Server\n\nAccumulated incident history for this service. Auto-maintained by the orchestrator agent.\n\n## Incident 2026-07-11T14:00:00+00:00 — inc-2201 (completed)\n- Node: homelab-01\n- Problems found:\n  - Plex Media Server process exited after the last auto-update; port 32400 is no longer listening.\n- Suggested actions:\n  - Restart the Plex service and check the update log for a crash on startup.\n\n## Incident 2026-07-11T23:00:00+00:00 — inc-2214 (completed)\n- Node: homelab-01\n- Problems found:\n  - Same failure signature as inc-2201: Plex process exited again, port 32400 not listening.\n- Suggested actions:\n  - Apply the same fix as last time: restart Plex and check the update log. Recommend disabling Plex auto-update until the crash is root-caused.\n"
+    }
+  ]};
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function fmtTime(iso) {
+    const d = new Date(iso);
+    return d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+
+  // Turn the fixed ## / - markdown shape of summary_text into simple HTML.
+  function renderMd(md) {
+    const lines = md.split("\n");
+    let html = "";
+    let inList = false;
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line) continue;
+      if (line.startsWith("## ")) {
+        if (inList) { html += "</ul>"; inList = false; }
+        html += `<h4>${esc(line.slice(3))}</h4>`;
+      } else if (line.startsWith("- ")) {
+        if (!inList) { html += "<ul>"; inList = true; }
+        html += `<li>${esc(line.slice(2))}</li>`;
+      } else {
+        if (inList) { html += "</ul>"; inList = false; }
+        html += `<p>${esc(line)}</p>`;
+      }
+    }
+    if (inList) html += "</ul>";
+    return html;
+  }
+
+  // Highlight any embedded "## Incident ..." block carried into a KB prompt block,
+  // so a reused specialist visibly shows what history it's drawing on.
+  function highlightCarriedHistory(text) {
+    const escaped = esc(text);
+    return escaped.replace(
+      /(## Incident[\s\S]*?)(?=\n\n--- END KNOWLEDGE BASE)/,
+      '<mark>$1</mark>'
+    );
+  }
+
+  const timelineEl = document.getElementById("timeline");
+
+  DATA.timeline.forEach((item) => {
+    const details = document.createElement("details");
+    details.className = "card";
+    details.id = "card-" + item.step;
+    if (item.step === 4) details.open = true;
+
+    const statusPill = item.report_status === "completed"
+      ? `<span class="pill good">completed</span>`
+      : `<span class="pill bad">fallback</span>`;
+    const reusedPill = item.specialist_reused
+      ? `<span class="pill specialist">specialist reused</span>`
+      : `<span class="pill specialist">specialist deployed</span>`;
+
+    const kbHasHistory = !item.prompt_kb_block.includes("_No incidents recorded yet._");
+    const promptHtml = kbHasHistory
+      ? highlightCarriedHistory(item.prompt_kb_block)
+      : esc(item.prompt_kb_block);
+
+    details.innerHTML = `
+      <summary class="card-head">
+        <span class="step-no">#${item.step}</span>
+        <div class="card-title">
+          <span class="svc">${esc(item.service)}</span>
+          <span class="meta">${esc(item.incident_id)} &middot; ${esc(item.node)} &middot; ${fmtTime(item.detected_at)}</span>
+        </div>
+        <div class="badges">${reusedPill}${statusPill}</div>
+        <span class="chev">&#8250;</span>
+      </summary>
+      <div class="card-body">
+        <div class="signal">
+          <span class="k">Incoming signal &middot; status: ${esc(item.status_in)}</span>
+          ${esc(item.description)}
+        </div>
+        ${item.mode === "fail" ? `<div class="fallback-note">Gemini call failed &mdash; orchestrator caught it and used the deterministic fallback report instead. The KB still gets an entry either way.<br>${esc(item.fallback_reason)}</div>` : ""}
+        <div class="two-col">
+          <div>
+            <div class="block-label">Prompt sent to Gemini (KB block)${kbHasHistory ? ' &mdash; <span style="color:var(--specialist)">highlighted = carried from a prior incident</span>' : ""}</div>
+            <pre class="code">${promptHtml}</pre>
+          </div>
+          <div>
+            <div class="block-label">Diagnosis produced</div>
+            <div class="report-md">${renderMd(item.summary_text)}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    timelineEl.appendChild(details);
+  });
+
+  document.getElementById("kb-plex").textContent =
+    DATA.timeline.find(t => t.service === "Plex Media Server" && t.step === 4).kb_file_after;
+  document.getElementById("kb-pg").textContent =
+    DATA.timeline.find(t => t.service === "PostgreSQL").kb_file_after;
+  document.getElementById("kb-ha").textContent =
+    DATA.timeline.find(t => t.service === "Home Assistant").kb_file_after;
+</script>

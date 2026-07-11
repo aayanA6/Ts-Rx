@@ -8,6 +8,9 @@
 *.db-shm
 *.db-wal
 
+# Per-service agent knowledge bases (runtime-generated, not source)
+data/service_kb/
+
 # Python
 __pycache__/
 *.pyc
