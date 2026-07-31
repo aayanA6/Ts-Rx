@@ -34,6 +34,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.tsbuildinfo
 *.local
 
 # Editor directories and files
