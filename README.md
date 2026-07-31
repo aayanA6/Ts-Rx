@@ -98,3 +98,7 @@ See `test/agentic-demo.html` for a self-contained walkthrough of a live run acro
 - No command execution path is implemented in backend.
 - Suggested commands are text-only guidance.
 - Code retrieval is read-only and constrained to allowlisted roots.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
