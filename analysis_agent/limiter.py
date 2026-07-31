@@ -11,7 +11,14 @@ from fastapi import HTTPException, Request
 _AUTH_MAX_CALLS = 10
 _AUTH_WINDOW_SECONDS = 60.0
 
-_auth_buckets: dict[str, list[float]] = defaultdict(list)
+# Ingest webhooks legitimately burst — a monitor host can report many services
+# in a short window — so this ceiling is higher than the auth one, but still
+# bounded so an unauthenticated flood of bad API keys can't hammer the DB or
+# rack up Gemini calls for free.
+_INGEST_MAX_CALLS = 120
+_INGEST_WINDOW_SECONDS = 60.0
+
+_buckets: dict[str, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
 
 
 def _client_ip(request: Request) -> str:
@@ -24,15 +31,26 @@ def _client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
-async def check_auth_rate_limit(request: Request) -> None:
-    """FastAPI dependency — raises 429 when the client IP exceeds the auth rate limit."""
+def _check_rate_limit(request: Request, *, bucket: str, max_calls: int, window_seconds: float) -> None:
     ip = _client_ip(request)
+    calls = _buckets[bucket][ip]
     now = time.monotonic()
-    _auth_buckets[ip] = [t for t in _auth_buckets[ip] if now - t < _AUTH_WINDOW_SECONDS]
-    if len(_auth_buckets[ip]) >= _AUTH_MAX_CALLS:
+    fresh = [t for t in calls if now - t < window_seconds]
+    if len(fresh) >= max_calls:
         raise HTTPException(
             status_code=429,
-            detail=f"Too many requests. Please wait {int(_AUTH_WINDOW_SECONDS)}s before trying again.",
-            headers={"Retry-After": str(int(_AUTH_WINDOW_SECONDS))},
+            detail=f"Too many requests. Please wait {int(window_seconds)}s before trying again.",
+            headers={"Retry-After": str(int(window_seconds))},
         )
-    _auth_buckets[ip].append(now)
+    fresh.append(now)
+    _buckets[bucket][ip] = fresh
+
+
+async def check_auth_rate_limit(request: Request) -> None:
+    """FastAPI dependency — raises 429 when the client IP exceeds the auth rate limit."""
+    _check_rate_limit(request, bucket="auth", max_calls=_AUTH_MAX_CALLS, window_seconds=_AUTH_WINDOW_SECONDS)
+
+
+async def check_ingest_rate_limit(request: Request) -> None:
+    """FastAPI dependency — raises 429 when the client IP exceeds the webhook ingest rate limit."""
+    _check_rate_limit(request, bucket="ingest", max_calls=_INGEST_MAX_CALLS, window_seconds=_INGEST_WINDOW_SECONDS)

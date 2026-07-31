@@ -72,7 +72,7 @@ from analysis_agent.schemas import (
     UptimeStatus,
     UserResponse,
 )
-from analysis_agent.limiter import check_auth_rate_limit
+from analysis_agent.limiter import check_auth_rate_limit, check_ingest_rate_limit
 from analysis_agent.tailscale_client import TailscaleClientError, get_tailscale_client
 from analysis_agent.worker import AnalysisWorker, set_redis
 
@@ -263,7 +263,7 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db), _rl: Non
 
 
 @app.post("/auth/refresh", response_model=TokenResponse)
-async def refresh_token(body: RefreshRequest, db: AsyncSession = Depends(get_db)) -> TokenResponse:
+async def refresh_token(body: RefreshRequest, db: AsyncSession = Depends(get_db), _rl: None = Depends(check_auth_rate_limit)) -> TokenResponse:
     user_id = decode_token(body.refresh_token, expected_type="refresh")
     if user_id is None:
         raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
@@ -477,6 +477,7 @@ async def ingest_webhook(
     api_key: str,
     request: Request,
     db: AsyncSession = Depends(get_db),
+    _rl: None = Depends(check_ingest_rate_limit),
 ) -> IngestResponse:
     try:
         raw = await request.json()
