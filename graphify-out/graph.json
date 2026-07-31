@@ -300,7 +300,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "analysis_agent_gemini_client_geminiclienterror",
-      "community": 9,
+      "community": 1,
       "norm_label": "geminiclienterror"
     },
     {
@@ -310,7 +310,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "analysis_agent_gemini_client_py_exception",
-      "community": 9,
+      "community": 1,
       "norm_label": "exception"
     },
     {
@@ -320,7 +320,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "analysis_agent_gemini_client_geminiclient",
-      "community": 9,
+      "community": 1,
       "norm_label": "geminiclient"
     },
     {
@@ -330,7 +330,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "analysis_agent_gemini_client_geminiclient_init",
-      "community": 9,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -340,7 +340,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "analysis_agent_gemini_client_geminiclient_generate_report",
-      "community": 9,
+      "community": 1,
       "norm_label": ".generate_report()"
     },
     {
@@ -350,7 +350,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "analysis_agent_gemini_client_py_any",
-      "community": 9,
+      "community": 1,
       "norm_label": "any"
     },
     {
@@ -360,7 +360,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "analysis_agent_gemini_client_geminiclient_candidate_models",
-      "community": 9,
+      "community": 1,
       "norm_label": "._candidate_models()"
     },
     {
@@ -370,7 +370,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "analysis_agent_gemini_client_geminiclient_extract_text",
-      "community": 9,
+      "community": 1,
       "norm_label": "._extract_text()"
     },
     {
@@ -380,7 +380,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "analysis_agent_gemini_client_geminiclient_extract_json",
-      "community": 9,
+      "community": 1,
       "norm_label": "._extract_json()"
     },
     {
@@ -397,7 +397,7 @@
       "label": "_client_ip()",
       "file_type": "code",
       "source_file": "analysis_agent/limiter.py",
-      "source_location": "L17",
+      "source_location": "L24",
       "_origin": "ast",
       "id": "analysis_agent_limiter_client_ip",
       "community": 21,
@@ -414,24 +414,54 @@
       "norm_label": "request"
     },
     {
+      "label": "_check_rate_limit()",
+      "file_type": "code",
+      "source_file": "analysis_agent/limiter.py",
+      "source_location": "L34",
+      "_origin": "ast",
+      "id": "analysis_agent_limiter_check_rate_limit",
+      "community": 21,
+      "norm_label": "_check_rate_limit()"
+    },
+    {
       "label": "check_auth_rate_limit()",
       "file_type": "code",
       "source_file": "analysis_agent/limiter.py",
-      "source_location": "L27",
+      "source_location": "L49",
       "_origin": "ast",
       "id": "analysis_agent_limiter_check_auth_rate_limit",
       "community": 21,
       "norm_label": "check_auth_rate_limit()"
     },
     {
+      "label": "check_ingest_rate_limit()",
+      "file_type": "code",
+      "source_file": "analysis_agent/limiter.py",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "analysis_agent_limiter_check_ingest_rate_limit",
+      "community": 21,
+      "norm_label": "check_ingest_rate_limit()"
+    },
+    {
       "label": "FastAPI dependency \u2014 raises 429 when the client IP exceeds the auth rate limit.",
       "file_type": "rationale",
       "source_file": "analysis_agent/limiter.py",
-      "source_location": "L28",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "analysis_agent_limiter_rationale_28",
+      "id": "analysis_agent_limiter_rationale_50",
       "community": 21,
       "norm_label": "fastapi dependency \u2014 raises 429 when the client ip exceeds the auth rate limit."
+    },
+    {
+      "label": "FastAPI dependency \u2014 raises 429 when the client IP exceeds the webhook ingest ra",
+      "file_type": "rationale",
+      "source_file": "analysis_agent/limiter.py",
+      "source_location": "L55",
+      "_origin": "ast",
+      "id": "analysis_agent_limiter_rationale_55",
+      "community": 21,
+      "norm_label": "fastapi dependency \u2014 raises 429 when the client ip exceeds the webhook ingest ra"
     },
     {
       "label": "# NOTE: Per-process only \u2014 limits are not shared across multiple uvicorn workers",
@@ -460,7 +490,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "analysis_agent_main_requestidfilter",
-      "community": 1,
+      "community": 0,
       "norm_label": "requestidfilter"
     },
     {
@@ -470,7 +500,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "analysis_agent_main_requestidfilter_filter",
-      "community": 1,
+      "community": 0,
       "norm_label": ".filter()"
     },
     {
@@ -480,7 +510,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "logrecord",
-      "community": 1,
+      "community": 0,
       "norm_label": "logrecord"
     },
     {
@@ -540,7 +570,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "analysis_agent_main_on_startup",
-      "community": 0,
+      "community": 13,
       "norm_label": "on_startup()"
     },
     {
@@ -747,7 +777,7 @@
       "label": "create_job()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L562",
+      "source_location": "L563",
       "_origin": "ast",
       "id": "analysis_agent_main_create_job",
       "community": 0,
@@ -757,7 +787,7 @@
       "label": "_fetch_incident_views()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L588",
+      "source_location": "L589",
       "_origin": "ast",
       "id": "analysis_agent_main_fetch_incident_views",
       "community": 0,
@@ -767,7 +797,7 @@
       "label": "list_incidents()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L639",
+      "source_location": "L640",
       "_origin": "ast",
       "id": "analysis_agent_main_list_incidents",
       "community": 0,
@@ -777,7 +807,7 @@
       "label": "list_services()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L649",
+      "source_location": "L650",
       "_origin": "ast",
       "id": "analysis_agent_main_list_services",
       "community": 0,
@@ -797,7 +827,7 @@
       "label": "_match_device_to_incident()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L687",
+      "source_location": "L688",
       "_origin": "ast",
       "id": "analysis_agent_main_match_device_to_incident",
       "community": 0,
@@ -807,7 +837,7 @@
       "label": "list_device_health()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L701",
+      "source_location": "L702",
       "_origin": "ast",
       "id": "analysis_agent_main_list_device_health",
       "community": 0,
@@ -817,7 +847,7 @@
       "label": "get_job()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L732",
+      "source_location": "L733",
       "_origin": "ast",
       "id": "analysis_agent_main_get_job",
       "community": 0,
@@ -827,7 +857,7 @@
       "label": "get_result()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L753",
+      "source_location": "L754",
       "_origin": "ast",
       "id": "analysis_agent_main_get_result",
       "community": 0,
@@ -840,14 +870,14 @@
       "source_location": "",
       "_origin": "ast",
       "id": "analysis_agent_main_py_any",
-      "community": 0,
+      "community": 9,
       "norm_label": "any"
     },
     {
       "label": "get_summary()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L777",
+      "source_location": "L778",
       "_origin": "ast",
       "id": "analysis_agent_main_get_summary",
       "community": 0,
@@ -857,7 +887,7 @@
       "label": "download_report()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L795",
+      "source_location": "L796",
       "_origin": "ast",
       "id": "analysis_agent_main_download_report",
       "community": 0,
@@ -877,7 +907,7 @@
       "label": "resolve_incident()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L818",
+      "source_location": "L819",
       "_origin": "ast",
       "id": "analysis_agent_main_resolve_incident",
       "community": 0,
@@ -887,7 +917,7 @@
       "label": "ws_incidents()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L851",
+      "source_location": "L852",
       "_origin": "ast",
       "id": "analysis_agent_main_ws_incidents",
       "community": 0,
@@ -907,7 +937,7 @@
       "label": "health()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L892",
+      "source_location": "L893",
       "_origin": "ast",
       "id": "analysis_agent_main_health",
       "community": 0,
@@ -917,17 +947,17 @@
       "label": "root()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L897",
+      "source_location": "L898",
       "_origin": "ast",
       "id": "analysis_agent_main_root",
-      "community": 0,
+      "community": 9,
       "norm_label": "root()"
     },
     {
       "label": "_map_job_to_ui_status()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L909",
+      "source_location": "L910",
       "_origin": "ast",
       "id": "analysis_agent_main_map_job_to_ui_status",
       "community": 0,
@@ -937,30 +967,30 @@
       "label": "_extract_logs()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L921",
+      "source_location": "L922",
       "_origin": "ast",
       "id": "analysis_agent_main_extract_logs",
-      "community": 0,
+      "community": 9,
       "norm_label": "_extract_logs()"
     },
     {
       "label": "_find_destructive_steps()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L946",
+      "source_location": "L947",
       "_origin": "ast",
       "id": "analysis_agent_main_find_destructive_steps",
-      "community": 0,
+      "community": 9,
       "norm_label": "_find_destructive_steps()"
     },
     {
       "label": "_extract_proposed_fix()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L950",
+      "source_location": "L951",
       "_origin": "ast",
       "id": "analysis_agent_main_extract_proposed_fix",
-      "community": 0,
+      "community": 9,
       "norm_label": "_extract_proposed_fix()"
     },
     {
@@ -970,127 +1000,127 @@
       "source_location": "",
       "_origin": "ast",
       "id": "analysis_agent_main_py_analysisreport",
-      "community": 0,
+      "community": 9,
       "norm_label": "analysisreport"
     },
     {
       "label": "_select_summary_text()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L989",
+      "source_location": "L990",
       "_origin": "ast",
       "id": "analysis_agent_main_select_summary_text",
-      "community": 0,
+      "community": 9,
       "norm_label": "_select_summary_text()"
     },
     {
       "label": "_has_required_sections()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L998",
+      "source_location": "L999",
       "_origin": "ast",
       "id": "analysis_agent_main_has_required_sections",
-      "community": 0,
+      "community": 9,
       "norm_label": "_has_required_sections()"
     },
     {
       "label": "_is_low_quality_summary()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1004",
+      "source_location": "L1005",
       "_origin": "ast",
       "id": "analysis_agent_main_is_low_quality_summary",
-      "community": 0,
+      "community": 9,
       "norm_label": "_is_low_quality_summary()"
     },
     {
       "label": "_build_summary_fallback()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1020",
+      "source_location": "L1021",
       "_origin": "ast",
       "id": "analysis_agent_main_build_summary_fallback",
-      "community": 0,
+      "community": 9,
       "norm_label": "_build_summary_fallback()"
     },
     {
       "label": "_extract_top_hypotheses()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1042",
+      "source_location": "L1043",
       "_origin": "ast",
       "id": "analysis_agent_main_extract_top_hypotheses",
-      "community": 0,
+      "community": 9,
       "norm_label": "_extract_top_hypotheses()"
     },
     {
       "label": "_extract_evidence_highlights()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1060",
+      "source_location": "L1061",
       "_origin": "ast",
       "id": "analysis_agent_main_extract_evidence_highlights",
-      "community": 0,
+      "community": 9,
       "norm_label": "_extract_evidence_highlights()"
     },
     {
       "label": "_parse_confidence_percent()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1077",
+      "source_location": "L1078",
       "_origin": "ast",
       "id": "analysis_agent_main_parse_confidence_percent",
-      "community": 0,
+      "community": 9,
       "norm_label": "_parse_confidence_percent()"
     },
     {
       "label": "_truncate_line()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1086",
+      "source_location": "L1087",
       "_origin": "ast",
       "id": "analysis_agent_main_truncate_line",
-      "community": 0,
+      "community": 9,
       "norm_label": "_truncate_line()"
     },
     {
       "label": "_normalize_step_from_action()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1091",
+      "source_location": "L1092",
       "_origin": "ast",
       "id": "analysis_agent_main_normalize_step_from_action",
-      "community": 0,
+      "community": 9,
       "norm_label": "_normalize_step_from_action()"
     },
     {
       "label": "_extract_solution_steps()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1108",
+      "source_location": "L1109",
       "_origin": "ast",
       "id": "analysis_agent_main_extract_solution_steps",
-      "community": 0,
+      "community": 9,
       "norm_label": "_extract_solution_steps()"
     },
     {
       "label": "_clean_step_text()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1127",
+      "source_location": "L1128",
       "_origin": "ast",
       "id": "analysis_agent_main_clean_step_text",
-      "community": 0,
+      "community": 9,
       "norm_label": "_clean_step_text()"
     },
     {
       "label": "_dedupe_steps()",
       "file_type": "code",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1146",
+      "source_location": "L1147",
       "_origin": "ast",
       "id": "analysis_agent_main_dedupe_steps",
-      "community": 0,
+      "community": 9,
       "norm_label": "_dedupe_steps()"
     },
     {
@@ -1110,7 +1140,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "analysis_agent_models",
-      "community": 0,
+      "community": 13,
       "norm_label": "models.py"
     },
     {
@@ -1120,7 +1150,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "analysis_agent_models_guid",
-      "community": 22,
+      "community": 13,
       "norm_label": "guid"
     },
     {
@@ -1130,7 +1160,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "typedecorator",
-      "community": 22,
+      "community": 13,
       "norm_label": "typedecorator"
     },
     {
@@ -1140,7 +1170,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "analysis_agent_models_guid_load_dialect_impl",
-      "community": 22,
+      "community": 13,
       "norm_label": ".load_dialect_impl()"
     },
     {
@@ -1150,7 +1180,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "analysis_agent_models_guid_process_bind_param",
-      "community": 22,
+      "community": 13,
       "norm_label": ".process_bind_param()"
     },
     {
@@ -1160,7 +1190,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "analysis_agent_models_guid_process_result_value",
-      "community": 22,
+      "community": 13,
       "norm_label": ".process_result_value()"
     },
     {
@@ -1170,7 +1200,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "analysis_agent_models_base",
-      "community": 0,
+      "community": 13,
       "norm_label": "base"
     },
     {
@@ -1180,7 +1210,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "declarativebase",
-      "community": 0,
+      "community": 13,
       "norm_label": "declarativebase"
     },
     {
@@ -1190,7 +1220,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "analysis_agent_models_jobstatus",
-      "community": 0,
+      "community": 13,
       "norm_label": "jobstatus"
     },
     {
@@ -1200,7 +1230,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "analysis_agent_models_py_str",
-      "community": 0,
+      "community": 13,
       "norm_label": "str"
     },
     {
@@ -1210,7 +1240,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "analysis_agent_models_reportstatus",
-      "community": 0,
+      "community": 13,
       "norm_label": "reportstatus"
     },
     {
@@ -1250,7 +1280,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "analysis_agent_models_notificationsettings",
-      "community": 0,
+      "community": 13,
       "norm_label": "notificationsettings"
     },
     {
@@ -1260,7 +1290,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "analysis_agent_models_analysisjob",
-      "community": 0,
+      "community": 13,
       "norm_label": "analysisjob"
     },
     {
@@ -1270,7 +1300,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "analysis_agent_models_analysisjob_status_enum",
-      "community": 0,
+      "community": 13,
       "norm_label": ".status_enum()"
     },
     {
@@ -1280,7 +1310,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "analysis_agent_models_analysisreport",
-      "community": 0,
+      "community": 13,
       "norm_label": "analysisreport"
     },
     {
@@ -1290,7 +1320,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "analysis_agent_models_rationale_12",
-      "community": 22,
+      "community": 13,
       "norm_label": "platform-independent guid type. uses postgresql's uuid natively;     falls back"
     },
     {
@@ -1640,7 +1670,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "analysis_agent_schemas",
-      "community": 1,
+      "community": 0,
       "norm_label": "schemas.py"
     },
     {
@@ -1650,7 +1680,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "analysis_agent_schemas_registerrequest",
-      "community": 1,
+      "community": 0,
       "norm_label": "registerrequest"
     },
     {
@@ -1660,7 +1690,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "basemodel",
-      "community": 1,
+      "community": 0,
       "norm_label": "basemodel"
     },
     {
@@ -1670,7 +1700,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "analysis_agent_schemas_loginrequest",
-      "community": 1,
+      "community": 0,
       "norm_label": "loginrequest"
     },
     {
@@ -1690,7 +1720,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "analysis_agent_schemas_refreshrequest",
-      "community": 1,
+      "community": 0,
       "norm_label": "refreshrequest"
     },
     {
@@ -1700,7 +1730,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "analysis_agent_schemas_forgotpasswordrequest",
-      "community": 1,
+      "community": 0,
       "norm_label": "forgotpasswordrequest"
     },
     {
@@ -1710,7 +1740,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "analysis_agent_schemas_resetpasswordrequest",
-      "community": 1,
+      "community": 0,
       "norm_label": "resetpasswordrequest"
     },
     {
@@ -1730,7 +1760,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "analysis_agent_schemas_userresponse",
-      "community": 1,
+      "community": 0,
       "norm_label": "userresponse"
     },
     {
@@ -1740,7 +1770,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "analysis_agent_schemas_apikeycreaterequest",
-      "community": 1,
+      "community": 0,
       "norm_label": "apikeycreaterequest"
     },
     {
@@ -1750,7 +1780,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "analysis_agent_schemas_apikeyresponse",
-      "community": 1,
+      "community": 0,
       "norm_label": "apikeyresponse"
     },
     {
@@ -1760,7 +1790,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "analysis_agent_schemas_apikeycreatedresponse",
-      "community": 1,
+      "community": 0,
       "norm_label": "apikeycreatedresponse"
     },
     {
@@ -1770,7 +1800,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "analysis_agent_schemas_notificationsettingsrequest",
-      "community": 1,
+      "community": 0,
       "norm_label": "notificationsettingsrequest"
     },
     {
@@ -1790,7 +1820,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "analysis_agent_schemas_uptimestatus",
-      "community": 33,
+      "community": 0,
       "norm_label": "uptimestatus"
     },
     {
@@ -1800,7 +1830,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "analysis_agent_schemas_py_str",
-      "community": 33,
+      "community": 0,
       "norm_label": "str"
     },
     {
@@ -1810,7 +1840,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "enum",
-      "community": 33,
+      "community": 0,
       "norm_label": "enum"
     },
     {
@@ -1820,7 +1850,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "analysis_agent_schemas_logsnippet",
-      "community": 1,
+      "community": 0,
       "norm_label": "logsnippet"
     },
     {
@@ -1840,7 +1870,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "analysis_agent_schemas_uptimekumajobcreate",
-      "community": 33,
+      "community": 0,
       "norm_label": "uptimekumajobcreate"
     },
     {
@@ -1850,7 +1880,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "analysis_agent_schemas_uptimekumajobcreate_validate_status",
-      "community": 33,
+      "community": 0,
       "norm_label": ".validate_status()"
     },
     {
@@ -1860,7 +1890,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "analysis_agent_schemas_uptimekumajobcreate_to_internal",
-      "community": 33,
+      "community": 0,
       "norm_label": ".to_internal()"
     },
     {
@@ -1870,7 +1900,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "analysis_agent_schemas_uptimekumajobcreate_incident_id",
-      "community": 33,
+      "community": 0,
       "norm_label": "._incident_id()"
     },
     {
@@ -1880,7 +1910,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "analysis_agent_schemas_uptimekumajobcreate_node_from_url",
-      "community": 33,
+      "community": 0,
       "norm_label": "._node_from_url()"
     },
     {
@@ -1890,7 +1920,7 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "analysis_agent_schemas_ingestpayload",
-      "community": 1,
+      "community": 0,
       "norm_label": "ingestpayload"
     },
     {
@@ -1900,7 +1930,7 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "analysis_agent_schemas_ingestresponse",
-      "community": 1,
+      "community": 0,
       "norm_label": "ingestresponse"
     },
     {
@@ -1910,7 +1940,7 @@
       "source_location": "L188",
       "_origin": "ast",
       "id": "analysis_agent_schemas_jobcreatedresponse",
-      "community": 1,
+      "community": 0,
       "norm_label": "jobcreatedresponse"
     },
     {
@@ -1920,7 +1950,7 @@
       "source_location": "L193",
       "_origin": "ast",
       "id": "analysis_agent_schemas_jobstatusresponse",
-      "community": 1,
+      "community": 0,
       "norm_label": "jobstatusresponse"
     },
     {
@@ -1930,7 +1960,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "analysis_agent_schemas_proposedfixview",
-      "community": 1,
+      "community": 0,
       "norm_label": "proposedfixview"
     },
     {
@@ -1950,7 +1980,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "analysis_agent_schemas_servicesummary",
-      "community": 1,
+      "community": 0,
       "norm_label": "servicesummary"
     },
     {
@@ -1960,7 +1990,7 @@
       "source_location": "L230",
       "_origin": "ast",
       "id": "analysis_agent_schemas_tailscaledeviceraw",
-      "community": 1,
+      "community": 0,
       "norm_label": "tailscaledeviceraw"
     },
     {
@@ -1970,7 +2000,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "analysis_agent_schemas_devicehealthview",
-      "community": 1,
+      "community": 0,
       "norm_label": "devicehealthview"
     },
     {
@@ -2040,7 +2070,7 @@
       "source_location": "L302",
       "_origin": "ast",
       "id": "analysis_agent_schemas_summaryresponse",
-      "community": 1,
+      "community": 0,
       "norm_label": "summaryresponse"
     },
     {
@@ -2050,7 +2080,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "analysis_agent_schemas_rationale_172",
-      "community": 1,
+      "community": 0,
       "norm_label": "flexible payload for the /ingest endpoint \u2014 accepts up for resolution too."
     },
     {
@@ -2060,7 +2090,7 @@
       "source_location": "L231",
       "_origin": "ast",
       "id": "analysis_agent_schemas_rationale_231",
-      "community": 1,
+      "community": 0,
       "norm_label": "subset of fields from tailscale's get /tailnet/{tailnet}/devices response."
     },
     {
@@ -2070,7 +2100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "analysis_agent_service_kb",
-      "community": 34,
+      "community": 1,
       "norm_label": "service_kb.py"
     },
     {
@@ -2080,7 +2110,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "analysis_agent_service_kb_slugify",
-      "community": 34,
+      "community": 1,
       "norm_label": "slugify()"
     },
     {
@@ -2090,7 +2120,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "analysis_agent_service_kb_kb_path",
-      "community": 34,
+      "community": 1,
       "norm_label": "kb_path()"
     },
     {
@@ -2100,7 +2130,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "analysis_agent_service_kb_py_path",
-      "community": 34,
+      "community": 1,
       "norm_label": "path"
     },
     {
@@ -2110,7 +2140,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "analysis_agent_service_kb_starter_template",
-      "community": 34,
+      "community": 1,
       "norm_label": "_starter_template()"
     },
     {
@@ -2120,7 +2150,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "analysis_agent_service_kb_read_kb",
-      "community": 34,
+      "community": 1,
       "norm_label": "read_kb()"
     },
     {
@@ -2130,7 +2160,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "analysis_agent_service_kb_append_entry",
-      "community": 34,
+      "community": 1,
       "norm_label": "append_entry()"
     },
     {
@@ -2140,7 +2170,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "analysis_agent_service_kb_trim_to_budget",
-      "community": 34,
+      "community": 1,
       "norm_label": "_trim_to_budget()"
     },
     {
@@ -2230,7 +2260,7 @@
       "source_location": "L196",
       "_origin": "ast",
       "id": "analysis_agent_specialist_confidence_from_report",
-      "community": 0,
+      "community": 13,
       "norm_label": "confidence_from_report()"
     },
     {
@@ -2420,7 +2450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "analysis_agent_worker",
-      "community": 0,
+      "community": 13,
       "norm_label": "worker.py"
     },
     {
@@ -2430,7 +2460,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "analysis_agent_worker_set_redis",
-      "community": 0,
+      "community": 13,
       "norm_label": "set_redis()"
     },
     {
@@ -2440,7 +2470,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "analysis_agent_worker_publish_event",
-      "community": 0,
+      "community": 13,
       "norm_label": "_publish_event()"
     },
     {
@@ -2450,7 +2480,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "analysis_agent_worker_analysisworker",
-      "community": 0,
+      "community": 13,
       "norm_label": "analysisworker"
     },
     {
@@ -2460,7 +2490,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "analysis_agent_worker_analysisworker_init",
-      "community": 1,
+      "community": 13,
       "norm_label": ".__init__()"
     },
     {
@@ -2470,7 +2500,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "async_sessionmaker",
-      "community": 1,
+      "community": 13,
       "norm_label": "async_sessionmaker"
     },
     {
@@ -2480,7 +2510,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "analysis_agent_worker_analysisworker_run",
-      "community": 0,
+      "community": 13,
       "norm_label": ".run()"
     },
     {
@@ -2490,7 +2520,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "analysis_agent_worker_analysisworker_stop",
-      "community": 0,
+      "community": 13,
       "norm_label": ".stop()"
     },
     {
@@ -2500,7 +2530,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "analysis_agent_worker_analysisworker_claim_next_job",
-      "community": 0,
+      "community": 13,
       "norm_label": "._claim_next_job()"
     },
     {
@@ -2510,7 +2540,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "analysis_agent_worker_py_uuid",
-      "community": 0,
+      "community": 13,
       "norm_label": "uuid"
     },
     {
@@ -2520,7 +2550,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "analysis_agent_worker_analysisworker_process_job",
-      "community": 0,
+      "community": 13,
       "norm_label": "._process_job()"
     },
     {
@@ -2530,7 +2560,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "analysis_agent_worker_analysisworker_maybe_notify",
-      "community": 0,
+      "community": 13,
       "norm_label": "._maybe_notify()"
     },
     {
@@ -2540,7 +2570,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "analysis_agent_worker_py_analysisreport",
-      "community": 0,
+      "community": 13,
       "norm_label": "analysisreport"
     },
     {
@@ -4997,7 +5027,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_execution_plan_cleanup",
-      "community": 0,
+      "community": 9,
       "norm_label": "test_execution_plan_cleanup.py"
     },
     {
@@ -5007,7 +5037,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "tests_test_execution_plan_cleanup_test_extract_solution_steps_removes_manual_prefix_and_safety_note",
-      "community": 0,
+      "community": 9,
       "norm_label": "test_extract_solution_steps_removes_manual_prefix_and_safety_note()"
     },
     {
@@ -5017,7 +5047,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "tests_test_execution_plan_cleanup_test_normalize_step_from_action_uses_description_when_command_is_placeholder",
-      "community": 0,
+      "community": 9,
       "norm_label": "test_normalize_step_from_action_uses_description_when_command_is_placeholder()"
     },
     {
@@ -6349,7 +6379,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L852",
+      "source_location": "L853",
       "weight": 1.0,
       "source": "analysis_agent_main_ws_incidents",
       "target": "analysis_agent_auth_decode_token"
@@ -7438,7 +7468,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/limiter.py",
-      "source_location": "L27",
+      "source_location": "L49",
       "weight": 1.0,
       "source": "analysis_agent_limiter",
       "target": "analysis_agent_limiter_check_auth_rate_limit",
@@ -7448,7 +7478,27 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/limiter.py",
-      "source_location": "L17",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "analysis_agent_limiter",
+      "target": "analysis_agent_limiter_check_ingest_rate_limit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "analysis_agent/limiter.py",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "analysis_agent_limiter",
+      "target": "analysis_agent_limiter_check_rate_limit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "analysis_agent/limiter.py",
+      "source_location": "L24",
       "weight": 1.0,
       "source": "analysis_agent_limiter",
       "target": "analysis_agent_limiter_client_ip",
@@ -7480,9 +7530,9 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/limiter.py",
-      "source_location": "L29",
+      "source_location": "L35",
       "weight": 1.0,
-      "source": "analysis_agent_limiter_check_auth_rate_limit",
+      "source": "analysis_agent_limiter_check_rate_limit",
       "target": "analysis_agent_limiter_client_ip",
       "confidence_score": 1.0
     },
@@ -7491,7 +7541,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/limiter.py",
-      "source_location": "L17",
+      "source_location": "L24",
       "weight": 1.0,
       "source": "analysis_agent_limiter_client_ip",
       "target": "analysis_agent_limiter_py_request",
@@ -7502,19 +7552,63 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/limiter.py",
-      "source_location": "L27",
+      "source_location": "L49",
       "weight": 1.0,
       "source": "analysis_agent_limiter_check_auth_rate_limit",
       "target": "analysis_agent_limiter_py_request",
       "confidence_score": 1.0
     },
     {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "analysis_agent/limiter.py",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "analysis_agent_limiter_check_ingest_rate_limit",
+      "target": "analysis_agent_limiter_py_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "analysis_agent/limiter.py",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "analysis_agent_limiter_check_rate_limit",
+      "target": "analysis_agent_limiter_py_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "analysis_agent/limiter.py",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "analysis_agent_limiter_check_auth_rate_limit",
+      "target": "analysis_agent_limiter_check_rate_limit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "analysis_agent/limiter.py",
+      "source_location": "L56",
+      "weight": 1.0,
+      "source": "analysis_agent_limiter_check_ingest_rate_limit",
+      "target": "analysis_agent_limiter_check_rate_limit",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/limiter.py",
-      "source_location": "L28",
+      "source_location": "L50",
       "weight": 1.0,
-      "source": "analysis_agent_limiter_rationale_28",
+      "source": "analysis_agent_limiter_rationale_50",
       "target": "analysis_agent_limiter_check_auth_rate_limit",
       "confidence_score": 1.0
     },
@@ -7527,6 +7621,27 @@
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_limiter_check_auth_rate_limit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "analysis_agent/limiter.py",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "analysis_agent_limiter_rationale_55",
+      "target": "analysis_agent_limiter_check_ingest_rate_limit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "analysis_agent/main.py",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "analysis_agent_main",
+      "target": "analysis_agent_limiter_check_ingest_rate_limit",
       "confidence_score": 1.0
     },
     {
@@ -7543,7 +7658,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1020",
+      "source_location": "L1021",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_build_summary_fallback",
@@ -7553,7 +7668,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1127",
+      "source_location": "L1128",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_clean_step_text",
@@ -7573,7 +7688,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L562",
+      "source_location": "L563",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_create_job",
@@ -7583,7 +7698,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1146",
+      "source_location": "L1147",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_dedupe_steps",
@@ -7603,7 +7718,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L795",
+      "source_location": "L796",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_download_report",
@@ -7613,7 +7728,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1060",
+      "source_location": "L1061",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_extract_evidence_highlights",
@@ -7623,7 +7738,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L921",
+      "source_location": "L922",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_extract_logs",
@@ -7633,7 +7748,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L950",
+      "source_location": "L951",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_extract_proposed_fix",
@@ -7643,7 +7758,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1108",
+      "source_location": "L1109",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_extract_solution_steps",
@@ -7653,7 +7768,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1042",
+      "source_location": "L1043",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_extract_top_hypotheses",
@@ -7663,7 +7778,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L588",
+      "source_location": "L589",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_fetch_incident_views",
@@ -7673,7 +7788,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L946",
+      "source_location": "L947",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_find_destructive_steps",
@@ -7703,7 +7818,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L732",
+      "source_location": "L733",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_get_job",
@@ -7723,7 +7838,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L753",
+      "source_location": "L754",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_get_result",
@@ -7733,7 +7848,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L777",
+      "source_location": "L778",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_get_summary",
@@ -7753,7 +7868,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L998",
+      "source_location": "L999",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_has_required_sections",
@@ -7763,7 +7878,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L892",
+      "source_location": "L893",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_health",
@@ -7793,7 +7908,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1004",
+      "source_location": "L1005",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_is_low_quality_summary",
@@ -7813,7 +7928,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L701",
+      "source_location": "L702",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_list_device_health",
@@ -7823,7 +7938,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L639",
+      "source_location": "L640",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_list_incidents",
@@ -7833,7 +7948,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L649",
+      "source_location": "L650",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_list_services",
@@ -7853,7 +7968,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L909",
+      "source_location": "L910",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_map_job_to_ui_status",
@@ -7863,7 +7978,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L687",
+      "source_location": "L688",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_match_device_to_incident",
@@ -7893,7 +8008,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1091",
+      "source_location": "L1092",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_normalize_step_from_action",
@@ -7923,7 +8038,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1077",
+      "source_location": "L1078",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_parse_confidence_percent",
@@ -7984,7 +8099,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L818",
+      "source_location": "L819",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_resolve_incident",
@@ -7994,7 +8109,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L897",
+      "source_location": "L898",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_root",
@@ -8004,7 +8119,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L989",
+      "source_location": "L990",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_select_summary_text",
@@ -8024,7 +8139,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1086",
+      "source_location": "L1087",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_truncate_line",
@@ -8054,7 +8169,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L851",
+      "source_location": "L852",
       "weight": 1.0,
       "source": "analysis_agent_main",
       "target": "analysis_agent_main_ws_incidents",
@@ -9094,7 +9209,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L562",
+      "source_location": "L563",
       "weight": 1.0,
       "source": "analysis_agent_main_create_job",
       "target": "analysis_agent_main_py_asyncsession",
@@ -9116,7 +9231,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L795",
+      "source_location": "L796",
       "weight": 1.0,
       "source": "analysis_agent_main_download_report",
       "target": "analysis_agent_main_py_asyncsession",
@@ -9127,7 +9242,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L588",
+      "source_location": "L589",
       "weight": 1.0,
       "source": "analysis_agent_main_fetch_incident_views",
       "target": "analysis_agent_main_py_asyncsession",
@@ -9149,7 +9264,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L732",
+      "source_location": "L733",
       "weight": 1.0,
       "source": "analysis_agent_main_get_job",
       "target": "analysis_agent_main_py_asyncsession",
@@ -9171,7 +9286,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L753",
+      "source_location": "L754",
       "weight": 1.0,
       "source": "analysis_agent_main_get_result",
       "target": "analysis_agent_main_py_asyncsession",
@@ -9182,7 +9297,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L777",
+      "source_location": "L778",
       "weight": 1.0,
       "source": "analysis_agent_main_get_summary",
       "target": "analysis_agent_main_py_asyncsession",
@@ -9226,7 +9341,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L701",
+      "source_location": "L702",
       "weight": 1.0,
       "source": "analysis_agent_main_list_device_health",
       "target": "analysis_agent_main_py_asyncsession",
@@ -9237,7 +9352,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L639",
+      "source_location": "L640",
       "weight": 1.0,
       "source": "analysis_agent_main_list_incidents",
       "target": "analysis_agent_main_py_asyncsession",
@@ -9248,7 +9363,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L649",
+      "source_location": "L650",
       "weight": 1.0,
       "source": "analysis_agent_main_list_services",
       "target": "analysis_agent_main_py_asyncsession",
@@ -9303,7 +9418,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L818",
+      "source_location": "L819",
       "weight": 1.0,
       "source": "analysis_agent_main_resolve_incident",
       "target": "analysis_agent_main_py_asyncsession",
@@ -9358,7 +9473,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L486",
+      "source_location": "L487",
       "weight": 1.0,
       "source": "analysis_agent_main_ingest_webhook",
       "target": "analysis_agent_main_get_user_by_api_key",
@@ -9710,7 +9825,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L795",
+      "source_location": "L796",
       "weight": 1.0,
       "source": "analysis_agent_main_download_report",
       "target": "analysis_agent_main_py_uuid",
@@ -9721,7 +9836,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L732",
+      "source_location": "L733",
       "weight": 1.0,
       "source": "analysis_agent_main_get_job",
       "target": "analysis_agent_main_py_uuid",
@@ -9732,7 +9847,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L753",
+      "source_location": "L754",
       "weight": 1.0,
       "source": "analysis_agent_main_get_result",
       "target": "analysis_agent_main_py_uuid",
@@ -9743,7 +9858,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L777",
+      "source_location": "L778",
       "weight": 1.0,
       "source": "analysis_agent_main_get_summary",
       "target": "analysis_agent_main_py_uuid",
@@ -9875,7 +9990,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L483",
+      "source_location": "L484",
       "weight": 1.0,
       "source": "analysis_agent_main_ingest_webhook",
       "target": "analysis_agent_main_normalize_ingest",
@@ -9908,7 +10023,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L492",
+      "source_location": "L493",
       "weight": 1.0,
       "source": "analysis_agent_main_ingest_webhook",
       "target": "analysis_agent_models_analysisjob"
@@ -9919,7 +10034,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L531",
+      "source_location": "L532",
       "weight": 1.0,
       "source": "analysis_agent_main_ingest_webhook",
       "target": "analysis_agent_schemas_analysisjobcreate"
@@ -9941,7 +10056,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L535",
+      "source_location": "L536",
       "weight": 1.0,
       "source": "analysis_agent_main_ingest_webhook",
       "target": "analysis_agent_schemas_uptimestatus"
@@ -9952,7 +10067,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L569",
+      "source_location": "L570",
       "weight": 1.0,
       "source": "analysis_agent_main_create_job",
       "target": "analysis_agent_models_analysisjob"
@@ -9962,7 +10077,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L562",
+      "source_location": "L563",
       "weight": 1.0,
       "source": "analysis_agent_main_create_job",
       "target": "analysis_agent_models_user",
@@ -9973,7 +10088,7 @@
       "context": "return_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L562",
+      "source_location": "L563",
       "weight": 1.0,
       "source": "analysis_agent_main_create_job",
       "target": "analysis_agent_schemas_jobcreatedresponse",
@@ -9984,7 +10099,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L562",
+      "source_location": "L563",
       "weight": 1.0,
       "source": "analysis_agent_main_create_job",
       "target": "analysis_agent_schemas_uptimekumajobcreate",
@@ -9995,7 +10110,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L616",
+      "source_location": "L617",
       "weight": 1.0,
       "source": "analysis_agent_main_fetch_incident_views",
       "target": "analysis_agent_main_extract_logs",
@@ -10006,7 +10121,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L619",
+      "source_location": "L620",
       "weight": 1.0,
       "source": "analysis_agent_main_fetch_incident_views",
       "target": "analysis_agent_main_extract_proposed_fix",
@@ -10017,22 +10132,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L615",
+      "source_location": "L616",
       "weight": 1.0,
       "source": "analysis_agent_main_fetch_incident_views",
       "target": "analysis_agent_main_map_job_to_ui_status",
       "confidence_score": 1.0
-    },
-    {
-      "relation": "indirect_call",
-      "context": "argument",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "analysis_agent/main.py",
-      "source_location": "L596",
-      "weight": 1.0,
-      "source": "analysis_agent_main_fetch_incident_views",
-      "target": "analysis_agent_models_analysisjob"
     },
     {
       "relation": "indirect_call",
@@ -10043,6 +10147,17 @@
       "source_location": "L597",
       "weight": 1.0,
       "source": "analysis_agent_main_fetch_incident_views",
+      "target": "analysis_agent_models_analysisjob"
+    },
+    {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "analysis_agent/main.py",
+      "source_location": "L598",
+      "weight": 1.0,
+      "source": "analysis_agent_main_fetch_incident_views",
       "target": "analysis_agent_models_analysisreport"
     },
     {
@@ -10050,7 +10165,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L588",
+      "source_location": "L589",
       "weight": 1.0,
       "source": "analysis_agent_main_fetch_incident_views",
       "target": "analysis_agent_models_user",
@@ -10061,7 +10176,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L588",
+      "source_location": "L589",
       "weight": 1.0,
       "source": "analysis_agent_main_fetch_incident_views",
       "target": "analysis_agent_schemas_incidentview",
@@ -10072,7 +10187,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L710",
+      "source_location": "L711",
       "weight": 1.0,
       "source": "analysis_agent_main_list_device_health",
       "target": "analysis_agent_main_fetch_incident_views",
@@ -10083,7 +10198,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L645",
+      "source_location": "L646",
       "weight": 1.0,
       "source": "analysis_agent_main_list_incidents",
       "target": "analysis_agent_main_fetch_incident_views",
@@ -10094,7 +10209,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L639",
+      "source_location": "L640",
       "weight": 1.0,
       "source": "analysis_agent_main_list_incidents",
       "target": "analysis_agent_models_user",
@@ -10105,7 +10220,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L639",
+      "source_location": "L640",
       "weight": 1.0,
       "source": "analysis_agent_main_list_incidents",
       "target": "analysis_agent_schemas_incidentview",
@@ -10116,7 +10231,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L668",
+      "source_location": "L669",
       "weight": 1.0,
       "source": "analysis_agent_main_list_services",
       "target": "analysis_agent_main_map_job_to_ui_status",
@@ -10128,7 +10243,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L654",
+      "source_location": "L655",
       "weight": 1.0,
       "source": "analysis_agent_main_list_services",
       "target": "analysis_agent_models_analysisjob"
@@ -10138,7 +10253,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L649",
+      "source_location": "L650",
       "weight": 1.0,
       "source": "analysis_agent_main_list_services",
       "target": "analysis_agent_models_user",
@@ -10149,7 +10264,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L649",
+      "source_location": "L650",
       "weight": 1.0,
       "source": "analysis_agent_main_list_services",
       "target": "servicesummary",
@@ -10160,7 +10275,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L715",
+      "source_location": "L716",
       "weight": 1.0,
       "source": "analysis_agent_main_list_device_health",
       "target": "analysis_agent_main_match_device_to_incident",
@@ -10171,7 +10286,7 @@
       "context": "return_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L687",
+      "source_location": "L688",
       "weight": 1.0,
       "source": "analysis_agent_main_match_device_to_incident",
       "target": "analysis_agent_schemas_incidentview",
@@ -10182,7 +10297,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L701",
+      "source_location": "L702",
       "weight": 1.0,
       "source": "analysis_agent_main_list_device_health",
       "target": "analysis_agent_models_user",
@@ -10193,7 +10308,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L701",
+      "source_location": "L702",
       "weight": 1.0,
       "source": "analysis_agent_main_list_device_health",
       "target": "analysis_agent_schemas_devicehealthview",
@@ -10205,7 +10320,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L714",
+      "source_location": "L715",
       "weight": 1.0,
       "source": "analysis_agent_main_list_device_health",
       "target": "analysis_agent_schemas_tailscaledeviceraw"
@@ -10216,7 +10331,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L706",
+      "source_location": "L707",
       "weight": 1.0,
       "source": "analysis_agent_main_list_device_health",
       "target": "analysis_agent_tailscale_client_get_tailscale_client"
@@ -10227,7 +10342,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L737",
+      "source_location": "L738",
       "weight": 1.0,
       "source": "analysis_agent_main_get_job",
       "target": "analysis_agent_models_analysisjob"
@@ -10237,7 +10352,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L732",
+      "source_location": "L733",
       "weight": 1.0,
       "source": "analysis_agent_main_get_job",
       "target": "analysis_agent_models_user",
@@ -10248,7 +10363,7 @@
       "context": "return_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L732",
+      "source_location": "L733",
       "weight": 1.0,
       "source": "analysis_agent_main_get_job",
       "target": "analysis_agent_schemas_jobstatusresponse",
@@ -10259,7 +10374,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L753",
+      "source_location": "L754",
       "weight": 1.0,
       "source": "analysis_agent_main_get_result",
       "target": "analysis_agent_main_py_any",
@@ -10271,7 +10386,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L760",
+      "source_location": "L761",
       "weight": 1.0,
       "source": "analysis_agent_main_get_result",
       "target": "analysis_agent_models_analysisjob"
@@ -10282,7 +10397,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L759",
+      "source_location": "L760",
       "weight": 1.0,
       "source": "analysis_agent_main_get_result",
       "target": "analysis_agent_models_analysisreport"
@@ -10292,7 +10407,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L753",
+      "source_location": "L754",
       "weight": 1.0,
       "source": "analysis_agent_main_get_result",
       "target": "analysis_agent_models_user",
@@ -10303,7 +10418,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1020",
+      "source_location": "L1021",
       "weight": 1.0,
       "source": "analysis_agent_main_build_summary_fallback",
       "target": "analysis_agent_main_py_any",
@@ -10314,7 +10429,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1060",
+      "source_location": "L1061",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_evidence_highlights",
       "target": "analysis_agent_main_py_any",
@@ -10325,7 +10440,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L921",
+      "source_location": "L922",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_logs",
       "target": "analysis_agent_main_py_any",
@@ -10336,7 +10451,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L950",
+      "source_location": "L951",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_proposed_fix",
       "target": "analysis_agent_main_py_any",
@@ -10347,7 +10462,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1042",
+      "source_location": "L1043",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_top_hypotheses",
       "target": "analysis_agent_main_py_any",
@@ -10358,7 +10473,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1091",
+      "source_location": "L1092",
       "weight": 1.0,
       "source": "analysis_agent_main_normalize_step_from_action",
       "target": "analysis_agent_main_py_any",
@@ -10369,7 +10484,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1077",
+      "source_location": "L1078",
       "weight": 1.0,
       "source": "analysis_agent_main_parse_confidence_percent",
       "target": "analysis_agent_main_py_any",
@@ -10380,7 +10495,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L897",
+      "source_location": "L898",
       "weight": 1.0,
       "source": "analysis_agent_main_root",
       "target": "analysis_agent_main_py_any",
@@ -10391,7 +10506,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L989",
+      "source_location": "L990",
       "weight": 1.0,
       "source": "analysis_agent_main_select_summary_text",
       "target": "analysis_agent_main_py_any",
@@ -10403,7 +10518,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L784",
+      "source_location": "L785",
       "weight": 1.0,
       "source": "analysis_agent_main_get_summary",
       "target": "analysis_agent_models_analysisjob"
@@ -10414,7 +10529,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L783",
+      "source_location": "L784",
       "weight": 1.0,
       "source": "analysis_agent_main_get_summary",
       "target": "analysis_agent_models_analysisreport"
@@ -10424,7 +10539,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L777",
+      "source_location": "L778",
       "weight": 1.0,
       "source": "analysis_agent_main_get_summary",
       "target": "analysis_agent_models_user",
@@ -10435,7 +10550,7 @@
       "context": "return_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L777",
+      "source_location": "L778",
       "weight": 1.0,
       "source": "analysis_agent_main_get_summary",
       "target": "analysis_agent_schemas_summaryresponse",
@@ -10447,7 +10562,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L802",
+      "source_location": "L803",
       "weight": 1.0,
       "source": "analysis_agent_main_download_report",
       "target": "analysis_agent_models_analysisjob"
@@ -10458,7 +10573,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L801",
+      "source_location": "L802",
       "weight": 1.0,
       "source": "analysis_agent_main_download_report",
       "target": "analysis_agent_models_analysisreport"
@@ -10468,7 +10583,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L795",
+      "source_location": "L796",
       "weight": 1.0,
       "source": "analysis_agent_main_download_report",
       "target": "analysis_agent_models_user",
@@ -10479,7 +10594,7 @@
       "context": "return_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L795",
+      "source_location": "L796",
       "weight": 1.0,
       "source": "analysis_agent_main_download_report",
       "target": "response",
@@ -10491,7 +10606,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "analysis_agent/main.py",
-      "source_location": "L824",
+      "source_location": "L825",
       "weight": 1.0,
       "source": "analysis_agent_main_resolve_incident",
       "target": "analysis_agent_models_analysisjob"
@@ -10501,7 +10616,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L818",
+      "source_location": "L819",
       "weight": 1.0,
       "source": "analysis_agent_main_resolve_incident",
       "target": "analysis_agent_models_user",
@@ -10512,7 +10627,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L851",
+      "source_location": "L852",
       "weight": 1.0,
       "source": "analysis_agent_main_ws_incidents",
       "target": "websocket",
@@ -10523,7 +10638,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L978",
+      "source_location": "L979",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_proposed_fix",
       "target": "analysis_agent_main_find_destructive_steps",
@@ -10534,7 +10649,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L973",
+      "source_location": "L974",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_proposed_fix",
       "target": "analysis_agent_main_dedupe_steps",
@@ -10545,7 +10660,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L972",
+      "source_location": "L973",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_proposed_fix",
       "target": "analysis_agent_main_extract_solution_steps",
@@ -10556,7 +10671,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L967",
+      "source_location": "L968",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_proposed_fix",
       "target": "analysis_agent_main_normalize_step_from_action",
@@ -10567,7 +10682,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L950",
+      "source_location": "L951",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_proposed_fix",
       "target": "analysis_agent_main_py_analysisreport",
@@ -10578,7 +10693,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L959",
+      "source_location": "L960",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_proposed_fix",
       "target": "analysis_agent_main_select_summary_text",
@@ -10589,7 +10704,7 @@
       "context": "return_type",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L950",
+      "source_location": "L951",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_proposed_fix",
       "target": "analysis_agent_schemas_proposedfixview",
@@ -10600,7 +10715,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L994",
+      "source_location": "L995",
       "weight": 1.0,
       "source": "analysis_agent_main_select_summary_text",
       "target": "analysis_agent_main_build_summary_fallback",
@@ -10611,7 +10726,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L991",
+      "source_location": "L992",
       "weight": 1.0,
       "source": "analysis_agent_main_select_summary_text",
       "target": "analysis_agent_main_has_required_sections",
@@ -10622,7 +10737,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L993",
+      "source_location": "L994",
       "weight": 1.0,
       "source": "analysis_agent_main_select_summary_text",
       "target": "analysis_agent_main_is_low_quality_summary",
@@ -10633,7 +10748,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1022",
+      "source_location": "L1023",
       "weight": 1.0,
       "source": "analysis_agent_main_build_summary_fallback",
       "target": "analysis_agent_main_extract_evidence_highlights",
@@ -10644,7 +10759,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1021",
+      "source_location": "L1022",
       "weight": 1.0,
       "source": "analysis_agent_main_build_summary_fallback",
       "target": "analysis_agent_main_extract_top_hypotheses",
@@ -10655,7 +10770,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1031",
+      "source_location": "L1032",
       "weight": 1.0,
       "source": "analysis_agent_main_build_summary_fallback",
       "target": "analysis_agent_main_truncate_line",
@@ -10666,7 +10781,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1053",
+      "source_location": "L1054",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_top_hypotheses",
       "target": "analysis_agent_main_parse_confidence_percent",
@@ -10677,7 +10792,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1071",
+      "source_location": "L1072",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_evidence_highlights",
       "target": "analysis_agent_main_truncate_line",
@@ -10688,7 +10803,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1102",
+      "source_location": "L1103",
       "weight": 1.0,
       "source": "analysis_agent_main_normalize_step_from_action",
       "target": "analysis_agent_main_clean_step_text",
@@ -10721,7 +10836,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "analysis_agent/main.py",
-      "source_location": "L1118",
+      "source_location": "L1119",
       "weight": 1.0,
       "source": "analysis_agent_main_extract_solution_steps",
       "target": "analysis_agent_main_clean_step_text",
@@ -19872,5 +19987,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "5329f39b9e9d11b4729e5d6e624ffdf588c2e690"
+  "built_at_commit": "8fb9aeb2267d00ed7ec4811a76021d3fe37ef529"
 }

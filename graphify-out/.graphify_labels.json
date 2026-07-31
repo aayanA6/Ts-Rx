@@ -21,7 +21,6 @@
   "19": "HackCanada",
   "20": "tsrx-agent.sh",
   "21": "check_auth_rate_limit",
-  "22": "GUID",
   "23": "ke",
   "24": "Al",
   "25": "setup.sh script",
@@ -32,6 +31,5 @@
   "30": "analysis-agent",
   "31": "vite-env.d.ts",
   "32": "vite.config.ts",
-  "33": "worker.py",
-  "34": "service_kb.py"
+  "33": "worker.py"
 }
