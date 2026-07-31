@@ -1,7 +1,7 @@
 {
   ".claude/settings.local.json": {
-    "mtime": 1785468888.3469968,
-    "ast_hash": "384b2e75b906dc710194984fe7c24c7d",
+    "mtime": 1783785479.1994271,
+    "ast_hash": "949844402a0c8f826fea82836d55fd46",
     "semantic_hash": ""
   },
   "analysis_agent/__init__.py": {
@@ -15,7 +15,7 @@
     "semantic_hash": ""
   },
   "analysis_agent/config.py": {
-    "mtime": 1783789442.0838413,
+    "mtime": 1783785951.0534244,
     "ast_hash": "85253b1126f2559904d9d2cfbdaf473a",
     "semantic_hash": ""
   },
@@ -70,7 +70,7 @@
     "semantic_hash": ""
   },
   "analysis_agent/worker.py": {
-    "mtime": 1783789442.0838413,
+    "mtime": 1783785947.0594244,
     "ast_hash": "2ee6af70bdb886ca6371ab4d2be63cae",
     "semantic_hash": ""
   },
@@ -195,7 +195,7 @@
     "semantic_hash": ""
   },
   "tests/test_analyzer_markdown.py": {
-    "mtime": 1783789442.0844648,
+    "mtime": 1783785958.0514243,
     "ast_hash": "584c0f9aa3806c848d4f24761f48ee93",
     "semantic_hash": ""
   },
@@ -220,7 +220,7 @@
     "semantic_hash": ""
   },
   "vite.config.ts": {
-    "mtime": 1785468799.2399974,
+    "mtime": 1783378421.172368,
     "ast_hash": "415545139d4323a9b1cb1b78600d3c0f",
     "semantic_hash": ""
   },
@@ -235,8 +235,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1785468992.6659963,
-    "ast_hash": "9a9e9c4b4b66db7de3219b6220c75247",
+    "mtime": 1783378421.160999,
+    "ast_hash": "d00ba16ff493d0e4a19d45bf3d83d644",
     "semantic_hash": ""
   },
   "SETUP.md": {
@@ -250,7 +250,7 @@
     "semantic_hash": ""
   },
   "docker-compose.yml": {
-    "mtime": 1783789442.0838413,
+    "mtime": 1783785973.2094243,
     "ast_hash": "b4118d80c367ee22baa374952ef02413",
     "semantic_hash": ""
   },
@@ -262,6 +262,11 @@
   "index.html": {
     "mtime": 1783378421.1699991,
     "ast_hash": "66cd7e734bb71ecc06c0e5293053c562",
+    "semantic_hash": ""
+  },
+  "ts_errors.txt": {
+    "mtime": 1783378421.172368,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "extension/vite.svg": {
@@ -279,39 +284,34 @@
     "ast_hash": "f0402b67b6ce880f65666bb49e841696",
     "semantic_hash": ""
   },
+  "test/01-before.png": {
+    "mtime": 1783537104.1902418,
+    "ast_hash": "bb66f4d2970d9216d4193826c9e3eed5",
+    "semantic_hash": ""
+  },
+  "test/02-incident-card.png": {
+    "mtime": 1783537141.3972416,
+    "ast_hash": "e2a76768407bdf900b7708f14fb59103",
+    "semantic_hash": ""
+  },
+  "test/03-incident-detail.png": {
+    "mtime": 1783537142.6752417,
+    "ast_hash": "70bcd98e06154748049ce2b082de60c4",
+    "semantic_hash": ""
+  },
   "analysis_agent/orchestrator.py": {
-    "mtime": 1783789442.0838413,
+    "mtime": 1783785933.3724244,
     "ast_hash": "b0eefaef48bdc4f6fc9b977f234c2a04",
     "semantic_hash": ""
   },
   "analysis_agent/service_kb.py": {
-    "mtime": 1783789442.0838413,
+    "mtime": 1783785888.8154247,
     "ast_hash": "4f2d4b6a2850d0e8e822fd9ea9588529",
     "semantic_hash": ""
   },
   "analysis_agent/specialist.py": {
-    "mtime": 1783789442.0838413,
+    "mtime": 1783785916.1674247,
     "ast_hash": "d76ecd4ff5b666eb52321a3a2a96d6df",
-    "semantic_hash": ""
-  },
-  "test/agentic-demo.html": {
-    "mtime": 1783789442.0844648,
-    "ast_hash": "9cacfb1a225896bbb7d3a7a5ca0f8604",
-    "semantic_hash": ""
-  },
-  "test/01-agentic-overview.png": {
-    "mtime": 1783789442.0838413,
-    "ast_hash": "a119f7283d709e744d291a323e629133",
-    "semantic_hash": ""
-  },
-  "test/02-agentic-recurrence.png": {
-    "mtime": 1783789442.0844648,
-    "ast_hash": "47916f92d042faa10ac93d77355e8527",
-    "semantic_hash": ""
-  },
-  "test/03-agentic-knowledge-base.png": {
-    "mtime": 1783789442.0844648,
-    "ast_hash": "c2c3bb487bbbb95b7b6b9f5641f9b6bc",
     "semantic_hash": ""
   }
 }

@@ -1,16 +1,16 @@
-# Graph Report - Ts-Rx  (2026-07-30)
+# Graph Report - Ts-Rx  (2026-07-11)
 
 ## Corpus Check
-- 52 files · ~39,734 words
+- 52 files · ~42,937 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 596 nodes · 1316 edges · 35 communities (31 shown, 4 thin omitted)
+- 589 nodes · 1309 edges · 34 communities (29 shown, 5 thin omitted)
 - Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 105 edges (avg confidence: 0.59)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5329f39b`
+- Built from commit: `11849b34`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -46,7 +46,6 @@
 - __init__.py
 - analysis-agent
 - worker.py
-- service_kb.py
 
 ## God Nodes (most connected - your core abstractions)
 1. `RequestIdFilter` - 39 edges
@@ -65,29 +64,29 @@
   tests/test_execution_plan_cleanup.py → analysis_agent/main.py
 - `test_extract_solution_steps_removes_manual_prefix_and_safety_note()` --calls--> `_extract_solution_steps()`  [EXTRACTED]
   tests/test_execution_plan_cleanup.py → analysis_agent/main.py
-- `_payload()` --references--> `AnalysisJobCreate`  [EXTRACTED]
-  tests/test_analyzer_markdown.py → analysis_agent/schemas.py
-- `_analyzer()` --references--> `ServiceSpecialist`  [EXTRACTED]
-  tests/test_analyzer_markdown.py → analysis_agent/specialist.py
-- `Orchestrator` --uses--> `GeminiClientError`  [INFERRED]
-  analysis_agent/orchestrator.py → analysis_agent/gemini_client.py
+- `RequestIdFilter` --uses--> `AnalysisJobCreate`  [INFERRED]
+  analysis_agent/main.py → analysis_agent/schemas.py
+- `RequestIdFilter` --uses--> `UptimeKumaJobCreate`  [INFERRED]
+  analysis_agent/main.py → analysis_agent/schemas.py
+- `RequestIdFilter` --uses--> `TailscaleClientError`  [INFERRED]
+  analysis_agent/main.py → analysis_agent/tailscale_client.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (35 total, 4 thin omitted)
+## Communities (34 total, 5 thin omitted)
 
 ### Community 0 - "main.py"
-Cohesion: 0.05
-Nodes (93): create_access_token(), create_refresh_token(), decode_token(), generate_api_key(), generate_reset_token(), hash_api_key(), hash_password(), hash_reset_token() (+85 more)
+Cohesion: 0.06
+Nodes (101): create_access_token(), create_refresh_token(), decode_token(), generate_api_key(), generate_reset_token(), hash_api_key(), hash_password(), hash_reset_token() (+93 more)
 
 ### Community 1 - "schemas.py"
-Cohesion: 0.07
-Nodes (60): get_settings(), Path, Settings, get_db(), AsyncSession, build_fallback_report(), _build_summary_markdown(), _heuristic_hypotheses() (+52 more)
+Cohesion: 0.06
+Nodes (52): get_settings(), Path, Settings, get_db(), AsyncSession, build_fallback_report(), _build_summary_markdown(), _heuristic_hypotheses() (+44 more)
 
 ### Community 2 - "api.ts"
 Cohesion: 0.09
-Nodes (41): App(), params, Dashboard(), Header(), HeaderProps, stringToColor(), initialResetToken, LoginPage() (+33 more)
+Nodes (42): App(), params, Dashboard(), Header(), HeaderProps, stringToColor(), initialResetToken, LoginPage() (+34 more)
 
 ### Community 3 - "get_settings"
 Cohesion: 0.33
@@ -102,8 +101,8 @@ Cohesion: 0.07
 Nodes (27): Af, ba, cp(), df, ec, _f, ff, Fl (+19 more)
 
 ### Community 6 - "diagnosisSummary.ts"
-Cohesion: 0.17
-Nodes (18): formatAge(), IncidentCard(), ReviewModal(), resolveIncident(), buildFallbackSummary(), getDiagnosisSummaryMarkdown(), hasRequiredSections(), isLowQualitySummary() (+10 more)
+Cohesion: 0.18
+Nodes (17): formatAge(), IncidentCard(), ReviewModal(), buildFallbackSummary(), getDiagnosisSummaryMarkdown(), hasRequiredSections(), isLowQualitySummary(), LOW_QUALITY_SUMMARY_MARKERS (+9 more)
 
 ### Community 7 - "content.js"
 Cohesion: 0.16
@@ -114,8 +113,8 @@ Cohesion: 0.09
 Nodes (21): 10. Verifying everything works, 1. Get a Gemini API key, 2. Clone the repo, 3. Local development (no Docker), 3a. Start Postgres and Redis, 3b. Backend, 3c. Frontend, 4. Production deployment (+13 more)
 
 ### Community 9 - "_extract_proposed_fix"
-Cohesion: 0.42
-Nodes (4): GeminiClient, GeminiClientError, Any, Exception
+Cohesion: 0.16
+Nodes (19): _build_summary_fallback(), _clean_step_text(), _dedupe_steps(), _extract_evidence_highlights(), _extract_proposed_fix(), _extract_solution_steps(), _extract_top_hypotheses(), _find_destructive_steps() (+11 more)
 
 ### Community 10 - "compilerOptions"
 Cohesion: 0.10
@@ -154,8 +153,8 @@ Cohesion: 0.25
 Nodes (7): content_scripts, description, host_permissions, manifest_version, name, version, web_accessible_resources
 
 ### Community 19 - "HackCanada"
-Cohesion: 0.13
-Nodes (14): API, Architecture, Backend (analysis agent), Frontend, Getting started, Incident diagnosis: agentic per-service specialists, Intake format (Uptime Kuma–style webhook), License (+6 more)
+Cohesion: 0.25
+Nodes (7): Backend (analysis agent), Core API endpoints, Frontend (Vite), HackCanada, Intake JSON format (Uptime Kuma style), Repo structure, Safety constraints
 
 ### Community 20 - "tsrx-agent.sh"
 Cohesion: 0.43
@@ -181,28 +180,20 @@ Nodes (5): Al(), Bf, Qf, Wi(), zf
 Cohesion: 0.83
 Nodes (3): die(), log(), setup.sh script
 
-### Community 33 - "worker.py"
-Cohesion: 0.23
-Nodes (9): str, UptimeKumaJobCreate, UptimeStatus, Enum, _analyzer(), _payload(), test_normalize_model_output_accepts_markdown_first_shape(), test_normalize_model_output_builds_structured_markdown_when_missing() (+1 more)
-
-### Community 34 - "service_kb.py"
-Cohesion: 0.46
-Nodes (7): append_entry(), kb_path(), Path, read_kb(), slugify(), _starter_template(), _trim_to_budget()
-
 ## Knowledge Gaps
-- **154 isolated node(s):** `df`, `ff`, `pf`, `mf`, `Ml` (+149 more)
+- **148 isolated node(s):** `df`, `ff`, `pf`, `mf`, `Ml` (+143 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `AnalysisJobCreate` connect `schemas.py` to `main.py`, `worker.py`?**
-  _High betweenness centrality (0.067) - this node is a cross-community bridge._
-- **Why does `get_settings()` connect `schemas.py` to `main.py`, `service_kb.py`, `get_settings`, `_extract_proposed_fix`, `notifier.py`?**
+  _High betweenness centrality (0.068) - this node is a cross-community bridge._
+- **Why does `get_settings()` connect `schemas.py` to `main.py`, `get_settings`, `notifier.py`?**
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+- **Why does `UptimeStatus` connect `main.py` to `worker.py`, `schemas.py`?**
   _High betweenness centrality (0.022) - this node is a cross-community bridge._
-- **Why does `UptimeStatus` connect `worker.py` to `main.py`, `schemas.py`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Are the 37 inferred relationships involving `RequestIdFilter` (e.g. with `AnalysisJob` and `AnalysisReport`) actually correct?**
   _`RequestIdFilter` has 37 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 6 inferred relationships involving `User` (e.g. with `forgot_password()` and `login()`) actually correct?**
@@ -210,4 +201,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Are the 5 inferred relationships involving `AnalysisJobCreate` (e.g. with `RequestIdFilter` and `Orchestrator`) actually correct?**
   _`AnalysisJobCreate` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Analysis agent package.`, `Returns (plaintext_key, hashed_key). Plaintext returned only once.`, `Returns (plaintext_token, hashed_token). Plaintext is embedded in the reset link` to the rest of the system?**
-  _168 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _162 weakly-connected nodes found - possible documentation gaps or missing edges._

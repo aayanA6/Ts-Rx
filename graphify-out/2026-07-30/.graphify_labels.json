@@ -32,6 +32,5 @@
   "30": "analysis-agent",
   "31": "vite-env.d.ts",
   "32": "vite.config.ts",
-  "33": "worker.py",
-  "34": "service_kb.py"
+  "33": "worker.py"
 }
